@@ -1,0 +1,4153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>资料分析限时训练</title>
+<style>
+/* SECTION: base */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1f5fbf;--blue-d:#164a99;--blue-l:#eef4fd;
+  --ink:#22293a;--sub:#6b7488;--line:#dde4ef;
+  --bg:#f5f7fb;--card:#fff;
+  --green:#1d8a4e;--green-l:#e8f6ee;
+  --red:#c0392b;--red-l:#fdeceb;
+  --orange:#c77700;--orange-l:#fff4e0;
+}
+html{-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;font-size:16px}
+button{font-family:inherit;font-size:16px;cursor:pointer;border:none;background:none;color:inherit}
+.wrap{max-width:860px;margin:0 auto;padding:0 14px 90px}
+/* SECTION: header */
+.topbar{background:linear-gradient(135deg,var(--blue-d),var(--blue));color:#fff;padding:16px;position:sticky;top:0;z-index:30;box-shadow:0 2px 10px rgba(22,74,153,.25)}
+.topbar-in{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.topbar h1{font-size:18px;font-weight:700;flex:1;min-width:0}
+.backbtn{background:rgba(255,255,255,.18);color:#fff;border-radius:8px;padding:6px 12px;font-size:14px;min-height:36px;display:none}
+.backbtn.show{display:inline-block}
+/* SECTION: views */
+.view{display:none;padding-top:16px}
+.view.active{display:block}
+.note{font-size:12px;color:var(--sub);background:var(--card);border:1px dashed var(--line);border-radius:10px;padding:10px 12px;margin-bottom:14px}
+/* SECTION: home */
+.statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 8px;text-align:center}
+.stat b{display:block;font-size:22px;color:var(--blue)}
+.stat span{font-size:12px;color:var(--sub)}
+.setcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.setcard h3{font-size:17px;color:var(--blue-d);margin-bottom:4px}
+.setcard .meta{font-size:13px;color:var(--sub);margin-bottom:10px}
+.setcard .rec{font-size:13px;color:var(--ink);background:var(--blue-l);border-radius:8px;padding:6px 10px;margin-bottom:10px}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border-radius:10px;padding:11px 16px;font-size:15px;min-height:46px;font-weight:600}
+.btn.primary{background:var(--blue);color:#fff;flex:1}
+.btn.ghost{border:1px solid var(--line);color:var(--sub)}
+.btn.green{background:var(--green);color:#fff}
+.btn:active{opacity:.85}
+.techbtn{width:100%;background:var(--orange-l);border:1px solid #ecd9b0;color:var(--orange);border-radius:12px;padding:14px;font-size:16px;font-weight:700;margin-bottom:16px;min-height:52px}
+.sect-title{font-size:15px;font-weight:700;color:var(--sub);margin:14px 0 10px;letter-spacing:1px}
+.fwtabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 6px}
+.fwtab{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:12px 10px;font-size:15px;font-weight:700;color:var(--ink);min-height:56px;text-align:center}
+.fwtab span{display:block;font-size:12px;font-weight:400;color:var(--sub);margin-top:2px}
+.fwtab.on{border-color:var(--blue);background:var(--blue-l);color:var(--blue-d)}
+.fwtab.on span{color:var(--blue)}
+.fwhint{font-size:12px;color:var(--sub);text-align:center;margin-bottom:10px}
+.catbadge{display:inline-block;font-size:12px;border-radius:12px;padding:1px 10px;margin-left:8px;vertical-align:2px}
+.catbadge.zt{background:var(--green-l);color:var(--green)}
+.catbadge.mn{background:var(--blue-l);color:var(--blue)}
+.srcline{font-size:12px;color:var(--sub);margin-bottom:10px}
+.tcap{font-size:13px;font-weight:600;color:var(--blue-d);margin:10px 0 4px}
+/* SECTION: exam */
+.exambar{position:sticky;top:56px;z-index:20;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.timer{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--blue)}
+.timer.over{color:var(--orange)}
+.timer.cutoff{color:var(--red)}
+.timerlbl{font-size:12px;color:var(--sub)}
+.exambar .prog{font-size:13px;color:var(--sub);flex:1;text-align:right}
+.submitbtn{background:var(--green);color:#fff;border-radius:10px;padding:9px 18px;font-size:15px;font-weight:700;min-height:42px}
+.cutoffbanner{display:none;background:var(--red-l);color:var(--red);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600;margin-bottom:10px}
+.cutoffbanner.show{display:block}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.tab{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:6px 14px;font-size:14px;color:var(--sub);min-height:36px}
+.tab.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.sheet{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.cell{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--card);font-size:13px;color:var(--sub);display:flex;align-items:center;justify-content:center}
+.cell.done{background:var(--blue-l);border-color:var(--blue);color:var(--blue);font-weight:700}
+.cell.cur{outline:2px solid var(--blue)}
+.matcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.matcard h3{font-size:15px;color:var(--blue-d);margin-bottom:8px}
+.mattext{font-size:15px;white-space:pre-wrap;word-break:break-word}
+.tablewrap{overflow-x:auto;margin-top:10px}
+table.data{border-collapse:collapse;width:100%;font-size:14px;min-width:320px}
+table.data th,table.data td{border:1px solid var(--line);padding:7px 9px;text-align:right;white-space:nowrap}
+table.data th{background:var(--blue-l);color:var(--blue-d);font-weight:600}
+table.data td:first-child,table.data th:first-child{text-align:left}
+.qcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.qno{font-weight:800;color:var(--blue)}
+.qtag{font-size:12px;background:var(--blue-l);color:var(--blue);border-radius:12px;padding:1px 10px}
+.qstem{font-size:16px;font-weight:600;margin-bottom:12px;word-break:break-word}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;min-height:46px;text-align:left;background:#fff}
+.opt .k{flex:none;width:24px;height:24px;border-radius:50%;background:var(--blue-l);color:var(--blue);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.opt .v{flex:1;min-width:0;word-break:break-word}
+.opt.sel{border-color:var(--blue);background:var(--blue-l)}
+.opt.sel .k{background:var(--blue);color:#fff}
+.opt.right{border-color:var(--green);background:var(--green-l)}
+.opt.right .k{background:var(--green);color:#fff}
+.opt.wrongsel{border-color:var(--red);background:var(--red-l)}
+.opt.wrongsel .k{background:var(--red);color:#fff}
+/* SECTION: analysis */
+details.ana{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+details.ana summary{font-size:14px;font-weight:700;color:var(--blue);cursor:pointer;min-height:32px}
+.method{background:var(--blue-l);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:14px}
+.method b{display:block;color:var(--blue-d);margin-bottom:4px;font-size:13px}
+.method .txt{white-space:pre-wrap;word-break:break-word}
+.status{font-size:13px;font-weight:700;border-radius:8px;padding:2px 10px}
+.status.ok{background:var(--green-l);color:var(--green)}
+.status.no{background:var(--red-l);color:var(--red)}
+.status.skip{background:#eef0f4;color:var(--sub)}
+.status.late{background:var(--orange-l);color:var(--orange)}
+.yourans{font-size:13px;color:var(--sub);margin-top:8px}
+/* SECTION: result */
+.rescard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 18px;text-align:center;margin-bottom:14px}
+.rescard .big{font-size:46px;font-weight:800;color:var(--blue)}
+.rescard .lbl{color:var(--sub);font-size:14px}
+.resgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px;text-align:left}
+.resgrid .it{background:var(--bg);border-radius:10px;padding:8px 12px;font-size:13px}
+.resgrid .it b{display:block;font-size:16px}
+.badge26{display:inline-block;margin-top:10px;font-size:13px;font-weight:700;border-radius:20px;padding:4px 14px}
+.badge26.good{background:var(--green-l);color:var(--green)}
+.badge26.bad{background:var(--orange-l);color:var(--orange)}
+.tagstats{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.tagstats h3{font-size:15px;margin-bottom:8px}
+.tagrow{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:6px}
+.tagrow .nm{width:96px;flex:none;color:var(--sub)}
+.tagrow .bar{flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden}
+.tagrow .bar i{display:block;height:100%;background:var(--blue);border-radius:4px}
+.tagrow .val{width:56px;flex:none;text-align:right}
+/* SECTION: tech */
+.techcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.techcard h3{font-size:16px;color:var(--blue-d);margin-bottom:8px}
+.techcard p,.techcard li{font-size:14px;margin-bottom:6px}
+.techcard ul{padding-left:20px}
+table.frac{border-collapse:collapse;width:100%;font-size:13px}
+table.frac td{border:1px solid var(--line);padding:5px 6px;text-align:center}
+table.frac td b{color:var(--blue)}
+@media (min-width:700px){
+  .resgrid{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+<body>
+<!-- SECTION: topbar -->
+<div class="topbar"><div class="topbar-in">
+<button class="backbtn" id="backBtn">‹ 返回</button>
+<h1 id="topTitle">资料分析限时训练</h1>
+</div></div>
+<div class="wrap">
+
+<!-- SECTION: home -->
+<div class="view active" id="view-home">
+  <div class="note">两个独立框架：<b>历年真题</b>为国考行政执法类真题（考生回忆版，多源核对、逐题程序核验）；<b>原创模拟</b>为仿真命制（模拟数据，非真实统计）。每套目标时间内完成计分，超时不强制交卷，但超过截止线后的作答不计入成绩。</div>
+  <div class="statrow">
+    <div class="stat"><b id="stSets">0</b><span>训练套卷</span></div>
+    <div class="stat"><b id="stAttempts">0</b><span>累计训练</span></div>
+    <div class="stat"><b id="stBest">--</b><span>最佳计分成绩</span></div>
+  </div>
+  <button class="techbtn" id="btnTech">速算技巧卡：特殊分数 · 截位直除 · 公式清单</button>
+  <div class="fwtabs">
+    <button class="fwtab" id="fwZt">历年真题框架<span id="fwZtN"></span></button>
+    <button class="fwtab" id="fwMn">原创模拟框架<span id="fwMnN"></span></button>
+  </div>
+  <div class="fwhint">点框架名可筛选对应套卷，再点一次恢复全部</div>
+  <div id="zhentiList"></div>
+  <div id="moniList"></div>
+  <div style="text-align:center;margin-top:18px"><button class="btn ghost" id="btnReset" style="font-size:13px">清空全部刷题记录</button></div>
+</div>
+
+<!-- SECTION: exam -->
+<div class="view" id="view-exam">
+  <div class="exambar">
+    <div><div class="timer" id="timer">26:00</div><div class="timerlbl" id="timerLbl">距目标用时</div></div>
+    <div class="prog" id="examProg">已答 0/20</div>
+    <button class="submitbtn" id="submitBtn">交卷</button>
+  </div>
+  <div class="cutoffbanner" id="cutoffBanner">已超过 30 分钟：此后作答不计入成绩，但仍可继续练习</div>
+  <div class="tabs" id="examTabs"></div>
+  <div class="sheet" id="sheet"></div>
+  <div id="examBody"></div>
+</div>
+
+<!-- SECTION: result -->
+<div class="view" id="view-result">
+  <div class="rescard">
+    <div class="big" id="resScore"></div>
+    <div class="lbl" id="resLbl">计分成绩</div>
+    <div id="resBadge"></div>
+    <div class="resgrid" id="resGrid"></div>
+  </div>
+  <div class="tagstats" id="tagStats"></div>
+  <div class="btnrow" style="margin-bottom:14px">
+    <button class="btn primary" id="resRetry">再练本套</button>
+    <button class="btn ghost" id="resHome">返回首页</button>
+  </div>
+  <div id="resList"></div>
+</div>
+
+<!-- SECTION: review -->
+<div class="view" id="view-review">
+  <div class="note">浏览模式：不计时间，逐题看题干、答案与多方法解析。</div>
+  <div class="tabs" id="reviewTabs"></div>
+  <div id="reviewBody"></div>
+</div>
+
+<!-- SECTION: tech -->
+<div class="view" id="view-tech">
+  <div class="techcard">
+    <h3>一、特殊分数表（增长量速算核心）</h3>
+    <p>增长率 r ≈ 1/n 时，增长量 ≈ 现期量 ÷ (n＋1)；负增长时减少量 ≈ 现期量 ÷ (n－1)。</p>
+    <table class="frac" id="fracTable"></table>
+  </div>
+  <div class="techcard">
+    <h3>二、截位直除规则</h3>
+    <ul>
+      <li>选项首位不同（差距大）：分子分母截两位，除到首位即可。</li>
+      <li>选项首位相同、第二位不同：截三位，除到第二位。</li>
+      <li>选项非常接近：保留三位以上精算，或改用公式变形比较。</li>
+      <li>截位只截分母也可（分子不动），误差更可控；量级（小数点）单独核对。</li>
+    </ul>
+  </div>
+  <div class="techcard">
+    <h3>三、必背公式清单</h3>
+    <ul>
+      <li>基期量 ＝ 现期量 ÷ (1＋r)</li>
+      <li>增长量 ＝ 现期量 × r ÷ (1＋r) ≈ 现期量 ÷ (n＋1)</li>
+      <li>比重 ＝ 部分 ÷ 整体；基期比重 ＝ (A÷B) × (1＋b) ÷ (1＋a)</li>
+      <li>两期比重差 ＝ (A÷B) × (a－b) ÷ (1＋a)，方向看 a、b 大小，幅度必小于 |a－b|</li>
+      <li>平均数增长率 ＝ (a－b) ÷ (1＋b)，略小于 a－b</li>
+      <li>年均增长量 ＝ (末期－初期) ÷ 年份差（年份差＝末年－初年，不数项数）</li>
+      <li>混合增长率：介于两部分之间，偏向基期量更大的一方</li>
+      <li>是几倍＝A÷B；多几倍＝A÷B－1；翻 n 番＝2 的 n 次方倍</li>
+    </ul>
+  </div>
+  <div class="techcard">
+    <h3>四、26 分钟考场策略</h3>
+    <ul>
+      <li>20 题 ≈ 每题 78 秒。先做直接读数、简单增长量/比重题，综合分析题最后做。</li>
+      <li>一篇材料 5 题尽量连做，避免反复切换材料浪费时间。</li>
+      <li>单题卡住超过 90 秒：先凭估算选一个并标记，做完后面的再回来。</li>
+      <li>综合分析从计算量最小的选项验证起，找到答案立即停。</li>
+      <li>平时训练用本工具记录每题用时，复盘时优先看耗时最长的题型。</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+<script type="application/json" id="bankData">{"moni":[
+ {
+  "name": "第一套",
+  "materials": [
+   {
+    "id": "1-1",
+    "title": "社会消费品零售总额",
+    "text": "2024年S市社会消费品零售总额情况如下表所示（模拟数据）。",
+    "table": {
+     "headers": [
+      "指标",
+      "2024年（亿元）",
+      "同比增长（%）"
+     ],
+     "rows": [
+      [
+       "社会消费品零售总额",
+       "15238.6",
+       "5.8"
+      ],
+      [
+       "城镇消费品零售额",
+       "13102.4",
+       "5.6"
+      ],
+      [
+       "乡村消费品零售额",
+       "2136.2",
+       "7.1"
+      ],
+      [
+       "商品零售额",
+       "13486.5",
+       "5.5"
+      ],
+      [
+       "餐饮收入",
+       "1752.1",
+       "8.2"
+      ]
+     ]
+    },
+    "questions": [
+     {
+      "id": 1,
+      "stem": "2023年城镇消费品零售额约为多少亿元？",
+      "options": [
+       "12863.4亿元",
+       "13836.1亿元",
+       "12368.7亿元",
+       "12407.6亿元"
+      ],
+      "answer": 3,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝13102.4÷(1＋5.6%)＝13102.4÷1.056≈12407.6亿元。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋5.6%＝1.056，截取前三位约1.06；分子13102.4截位约13100。直除得前两位约12，结合量级（结果应略小于13102.4）即可锁定12407.6，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 2,
+      "stem": "2024年乡村消费品零售额的同比增量约为多少亿元？（负值表示减少）",
+      "options": [
+       "163.3亿元",
+       "226.6亿元",
+       "141.6亿元",
+       "151.7亿元"
+      ],
+      "answer": 2,
+      "tag": "增长量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "增长量＝现期量×增长率÷(1＋增长率)＝2136.2×7.1%÷(1＋7.1%)≈141.6亿元。"
+       },
+       {
+        "name": "方法二 · 特殊分数（速算）",
+        "text": "特殊分数法：7.1%≈1/14（7.14%），增长量≈现期量÷(n＋1)＝2136.2÷15≈142.4亿元。因7.1%比1/14略小，真实值比估算值略小一点，选最接近的141.6。"
+       }
+      ]
+     },
+     {
+      "id": 3,
+      "stem": "2024年城镇消费品零售额占社会消费品零售总额的比重约为：",
+      "options": [
+       "46.2%",
+       "86.0%",
+       "96.3%",
+       "613.4%"
+      ],
+      "answer": 1,
+      "tag": "比重",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "比重＝部分÷整体＝13102.4÷15238.6×100%≈86.0%。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：13102.4÷15238.6，分子分母各截前三位≈13100÷15200，直除前两位约85%，对照选项直接锁定。选项差距大时除到第二位即可停。"
+       }
+      ]
+     },
+     {
+      "id": 4,
+      "stem": "2024年乡村消费品零售额占社会消费品零售总额的比重与上年相比约：",
+      "options": [
+       "下降了约1.3个百分点",
+       "上升了约0.2个百分点",
+       "下降了约0.2个百分点",
+       "上升了约1.3个百分点"
+      ],
+      "answer": 1,
+      "tag": "比重变化",
+      "methods": [
+       {
+        "name": "方法一 · 比重差公式",
+        "text": "两期比重差＝(A÷B)×(a－b)÷(1＋a)。其中a－b＝1.3个百分点，现期比重A÷B≈14.02%，故比重差≈14.02%×(1.3)÷1.071≈0.17个百分点，即上升了约0.2个百分点。"
+       },
+       {
+        "name": "方法二 · 方向＋幅度两步法（速算）",
+        "text": "两步秒杀：①定方向——部分增速7.1%＞整体增速5.8%，比重上升，排除两个反向选项；②定大小——比重变化幅度必小于|a－b|＝1.3个百分点，排除等于1.3的选项，直接锁定答案。"
+       }
+      ]
+     },
+     {
+      "id": 5,
+      "stem": "关于上述资料，下列说法不正确的是：",
+      "options": [
+       "城镇消费品零售额的同比增速高于4.0%",
+       "乡村消费品零售额占社会消费品零售总额的比重较上年上升",
+       "餐饮收入的同比增速高于6.6%",
+       "城镇消费品零售额上年值超过13028亿元"
+      ],
+      "answer": 3,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✓正确：实际增速为5.6%，高于4.0%。\nB项✓正确：部分增速7.1%＞整体增速5.8%，比重上升。\nC项✓正确：实际增速为8.2%，高于6.6%。\nD项✗错误：基期量＝13102.4÷(1＋5.6%)≈12407.6亿元，未超过13028。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "1-2",
+    "title": "进出口贸易",
+    "text": "2024年S市进出口贸易情况如下表所示（模拟数据）。",
+    "table": {
+     "headers": [
+      "指标",
+      "2024年（亿元）",
+      "同比增长（%）"
+     ],
+     "rows": [
+      [
+       "进出口总额",
+       "8642.3",
+       "6.4"
+      ],
+      [
+       "出口额",
+       "5218.7",
+       "8.9"
+      ],
+      [
+       "进口额",
+       "3423.6",
+       "2.8"
+      ]
+     ]
+    },
+    "questions": [
+     {
+      "id": 6,
+      "stem": "2023年出口额约为多少亿元？",
+      "options": [
+       "4944.4亿元",
+       "5683.2亿元",
+       "4754.2亿元",
+       "4792.2亿元"
+      ],
+      "answer": 3,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝5218.7÷(1＋8.9%)＝5218.7÷1.089≈4792.2亿元。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋8.9%＝1.089，截取前三位约1.09；分子5218.7截位约5220。直除得前两位约47，结合量级（结果应略小于5218.7）即可锁定4792.2，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 7,
+      "stem": "2024年进口额的同比增量约为多少亿元？（负值表示减少）",
+      "options": [
+       "95.9亿元",
+       "149.2亿元",
+       "98.6亿元",
+       "93.2亿元"
+      ],
+      "answer": 3,
+      "tag": "增长量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "增长量＝现期量×增长率÷(1＋增长率)＝3423.6×2.8%÷(1＋2.8%)≈93.2亿元。"
+       },
+       {
+        "name": "方法二 · 特殊分数（速算）",
+        "text": "特殊分数法：2.8%≈1/20（5.00%），增长量≈现期量÷(n＋1)＝3423.6÷21≈163.0亿元。因2.8%比1/20略小，真实值比估算值略小一点，选最接近的93.2。"
+       }
+      ]
+     },
+     {
+      "id": 8,
+      "stem": "2024年出口额占进出口总额的比重约为：",
+      "options": [
+       "67.6%",
+       "37.7%",
+       "152.4%",
+       "60.4%"
+      ],
+      "answer": 3,
+      "tag": "比重",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "比重＝部分÷整体＝5218.7÷8642.3×100%≈60.4%。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：5218.7÷8642.3，分子分母各截前三位≈5220÷8640，直除前两位约60%，对照选项直接锁定。选项差距大时除到第二位即可停。"
+       }
+      ]
+     },
+     {
+      "id": 9,
+      "stem": "2024年进口额占进出口总额的比重与上年相比约：",
+      "options": [
+       "上升了约1.4个百分点",
+       "下降了约1.4个百分点",
+       "下降了约3.6个百分点",
+       "上升了约3.6个百分点"
+      ],
+      "answer": 1,
+      "tag": "比重变化",
+      "methods": [
+       {
+        "name": "方法一 · 比重差公式",
+        "text": "两期比重差＝(A÷B)×(a－b)÷(1＋a)。其中a－b＝-3.6个百分点，现期比重A÷B≈39.61%，故比重差≈39.61%×(-3.6)÷1.028≈-1.39个百分点，即下降了约1.4个百分点。"
+       },
+       {
+        "name": "方法二 · 方向＋幅度两步法（速算）",
+        "text": "两步秒杀：①定方向——部分增速2.8%＜整体增速6.4%，比重下降，排除两个反向选项；②定大小——比重变化幅度必小于|a－b|＝3.6个百分点，排除等于3.6的选项，直接锁定答案。"
+       }
+      ]
+     },
+     {
+      "id": 10,
+      "stem": "关于上述资料，下列说法不正确的是：",
+      "options": [
+       "进口额占进出口总额的比重较上年上升",
+       "出口额的同比增速高于7.3%",
+       "出口额占进出口总额的比重较上年上升",
+       "进口额的同比增速高于1.2%"
+      ],
+      "answer": 0,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✗错误：部分增速2.8%≤整体增速6.4%，比重下降。\nB项✓正确：实际增速为8.9%，高于7.3%。\nC项✓正确：部分增速8.9%＞整体增速6.4%，比重上升。\nD项✓正确：实际增速为2.8%，高于1.2%。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "1-3",
+    "title": "旅游业",
+    "text": "2024年S市旅游总收入为4862.5亿元，同比增长12.6%；接待游客总人数为38650.0万人次，同比增长9.4%。（模拟数据）",
+    "table": null,
+    "questions": [
+     {
+      "id": 11,
+      "stem": "2024年人均旅游花费约为多少元/人次？",
+      "options": [
+       "1698.4元/人次",
+       "1069.4元/人次",
+       "1258.1元/人次",
+       "1484.5元/人次"
+      ],
+      "answer": 2,
+      "tag": "平均数",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "平均数＝总量÷份数＝4862.5÷38650.0（注意单位换算：乘换算系数10000）≈1258.1元/人次。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分子分母各截前三位≈4860÷38600，直除前两位约12，注意量级（小数点位置）后锁定选项。"
+       }
+      ]
+     },
+     {
+      "id": 12,
+      "stem": "2024年该平均数比上年约增长：",
+      "options": [
+       "2.9%",
+       "3.2%",
+       "2.8%",
+       "13.4%"
+      ],
+      "answer": 0,
+      "tag": "平均数增长率",
+      "methods": [
+       {
+        "name": "方法一 · 平均数增长率公式",
+        "text": "平均数增长率＝(1＋a)÷(1＋b)－1＝(a－b)÷(1＋b)＝(12.6%－9.4%)÷(1＋9.4%)≈2.9%。"
+       },
+       {
+        "name": "方法二 · a－b估算修正（速算）",
+        "text": "估算：先算a－b＝3.2%；因分母1＋9.4%＞1，真实值比3.2%略小，选略小于3.2%的选项。b越大，修正越明显，不能直接选a－b。"
+       }
+      ]
+     },
+     {
+      "id": 13,
+      "stem": "2023年旅游总收入约为多少亿元？",
+      "options": [
+       "5475.2亿元",
+       "4249.8亿元",
+       "4318.4亿元",
+       "4419.8亿元"
+      ],
+      "answer": 2,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝4862.5÷(1＋12.6%)＝4862.5÷1.126≈4318.4亿元。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋12.6%＝1.126，截取前三位约1.13；分子4862.5截位约4860。直除得前两位约43，结合量级（结果应略小于4862.5）即可锁定4318.4，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 14,
+      "stem": "2024年接待游客总人数的同比增量约为多少万人次？（负值表示减少）",
+      "options": [
+       "4010.0万人次",
+       "3320.9万人次",
+       "5313.5万人次",
+       "3633.1万人次"
+      ],
+      "answer": 1,
+      "tag": "增长量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "增长量＝现期量×增长率÷(1＋增长率)＝38650.0×9.4%÷(1＋9.4%)≈3320.9万人次。"
+       },
+       {
+        "name": "方法二 · 特殊分数（速算）",
+        "text": "特殊分数法：9.4%≈1/11（9.09%），增长量≈现期量÷(n＋1)＝38650.0÷12≈3220.8万人次。因9.4%比1/11略大，真实值比估算值略大一点，选最接近的3320.9。"
+       }
+      ]
+     },
+     {
+      "id": 15,
+      "stem": "关于上述资料，下列说法不正确的是：",
+      "options": [
+       "2023年接待游客总人数低于37096万人次",
+       "2024年接待游客总人数的同比增速高于10.2%",
+       "2024年人均旅游花费比上年增加",
+       "2023年旅游总收入超过4102亿元"
+      ],
+      "answer": 1,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✓正确：基期量≈35329.1万人次，低于该值。\nB项✗错误：实际增速9.4%，低于10.2%。\nC项✓正确：总量增速12.6%＞份数增速9.4%，平均数上升。\nD项✓正确：基期量≈4318.4亿元，超过该值。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "1-4",
+    "title": "快递业务量",
+    "text": "2020—2024年S市快递业务量如下表（模拟数据）。2024年同比增长17.3%。",
+    "table": {
+     "headers": [
+      "年份",
+      "2020",
+      "2021",
+      "2022",
+      "2023",
+      "2024"
+     ],
+     "rows": [
+      [
+       "快递业务量",
+       "68.5",
+       "82.3",
+       "95.6",
+       "112.4",
+       "131.8"
+      ]
+     ]
+    },
+    "questions": [
+     {
+      "id": 17,
+      "stem": "2020—2024年，该指标年均增长量约为多少亿件？",
+      "options": [
+       "33.0亿件",
+       "15.8亿件",
+       "21.1亿件",
+       "12.7亿件"
+      ],
+      "answer": 1,
+      "tag": "年均增长量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "年均增长量＝(末期量－初期量)÷年份差＝(131.8－68.5)÷(2024－2020)＝63.3÷4≈15.8亿件。"
+       },
+       {
+        "name": "方法二 · 年份差防错＋直除（速算）",
+        "text": "易错点：年份差＝末期年份－初期年份＝4，不是5（不要数项数）。先估63.3÷4的量级，直除首位即可区分选项。"
+       }
+      ]
+     },
+     {
+      "id": 18,
+      "stem": "2024年快递业务量约为2020年快递业务量的多少倍？",
+      "options": [
+       "1.9倍",
+       "2.4倍",
+       "0.9倍",
+       "1.5倍"
+      ],
+      "answer": 0,
+      "tag": "倍数",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "倍数＝A÷B＝131.8÷68.5≈1.9倍。注意「是几倍」直接除，「多几倍」才需要减1。"
+       },
+       {
+        "name": "方法二 · 直除首位（速算）",
+        "text": "直除首位：132÷68.5，首位商1，结合选项差距即可确定；选项接近时再除第二位。"
+       }
+      ]
+     },
+     {
+      "id": 19,
+      "stem": "2023年快递业务量约为多少亿件？",
+      "options": [
+       "154.6亿件",
+       "112.4亿件",
+       "113.4亿件",
+       "109.0亿件"
+      ],
+      "answer": 1,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝131.8÷(1＋17.3%)＝131.8÷1.173≈112.4亿件。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋17.3%＝1.173，截取前三位约1.17；分子131.8截位约132。直除得前两位约11，结合量级（结果应略小于131.8）即可锁定112.4，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 16,
+      "stem": "2021—2024年中，快递业务量同比增速最快的年份是：",
+      "options": [
+       "2023",
+       "2021",
+       "2024",
+       "2022"
+      ],
+      "answer": 1,
+      "tag": "增长率比较",
+      "methods": [
+       {
+        "name": "方法一 · 逐年计算",
+        "text": "2021年：(82.3－68.5)÷68.5≈20.1%；2022年：(95.6－82.3)÷82.3≈16.2%；2023年：(112.4－95.6)÷95.6≈17.6%；2024年：(131.8－112.4)÷112.4≈17.3%。最快为2021年。"
+       },
+       {
+        "name": "方法二 · 增量÷基期比较（速算）",
+        "text": "比较各年「增量÷上年值」的分数大小：增量相近时基期小的增速快；直除首位即可排序，不必算出精确百分数。"
+       }
+      ]
+     },
+     {
+      "id": 20,
+      "stem": "关于上述资料，下列说法不正确的是：",
+      "options": [
+       "2024年快递业务量的同比增速高于18.3%",
+       "2024年快递业务量约为2020年的2.0倍",
+       "2024年快递业务量的同比增量超过18亿件",
+       "2021—2024年快递业务量逐年增长"
+      ],
+      "answer": 0,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✗错误：实际增速17.3%。\nB项✓正确：实际倍数≈1.92。\nC项✓正确：增量＝19.4亿件，超过该值。\nD项✓正确：逐年比较表中数值即可判断。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "第二套",
+  "materials": [
+   {
+    "id": "2-1",
+    "title": "地区生产总值",
+    "text": "2024年S市地区生产总值情况如下表所示（模拟数据）。",
+    "table": {
+     "headers": [
+      "指标",
+      "2024年（亿元）",
+      "同比增长（%）"
+     ],
+     "rows": [
+      [
+       "地区生产总值",
+       "31245.8",
+       "5.2"
+      ],
+      [
+       "第一产业增加值",
+       "1862.4",
+       "3.6"
+      ],
+      [
+       "第二产业增加值",
+       "11876.5",
+       "4.8"
+      ],
+      [
+       "第三产业增加值",
+       "17506.9",
+       "5.7"
+      ]
+     ]
+    },
+    "questions": [
+     {
+      "id": 21,
+      "stem": "2023年第一产业增加值约为多少亿元？",
+      "options": [
+       "1929.4亿元",
+       "1797.7亿元",
+       "1795.4亿元",
+       "1867.2亿元"
+      ],
+      "answer": 1,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝1862.4÷(1＋3.6%)＝1862.4÷1.036≈1797.7亿元。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋3.6%＝1.036，截取前三位约1.04；分子1862.4截位约1860。直除得前两位约17，结合量级（结果应略小于1862.4）即可锁定1797.7，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 22,
+      "stem": "2024年第二产业增加值的同比增量约为多少亿元？（负值表示减少）",
+      "options": [
+       "544.0亿元",
+       "598.8亿元",
+       "870.3亿元",
+       "570.1亿元"
+      ],
+      "answer": 0,
+      "tag": "增长量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "增长量＝现期量×增长率÷(1＋增长率)＝11876.5×4.8%÷(1＋4.8%)≈544.0亿元。"
+       },
+       {
+        "name": "方法二 · 特殊分数（速算）",
+        "text": "特殊分数法：4.8%≈1/20（5.00%），增长量≈现期量÷(n＋1)＝11876.5÷21≈565.5亿元。因4.8%比1/20略小，真实值比估算值略小一点，选最接近的544.0。"
+       }
+      ]
+     },
+     {
+      "id": 23,
+      "stem": "2024年第一产业增加值占地区生产总值的比重约为：",
+      "options": [
+       "6.0%",
+       "6.3%",
+       "6.7%",
+       "5.6%"
+      ],
+      "answer": 0,
+      "tag": "比重",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "比重＝部分÷整体＝1862.4÷31245.8×100%≈6.0%。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：1862.4÷31245.8，分子分母各截前三位≈1860÷31200，直除前两位约59%，对照选项直接锁定。选项差距大时除到第二位即可停。"
+       }
+      ]
+     },
+     {
+      "id": 24,
+      "stem": "2024年第二产业增加值占地区生产总值的比重与上年相比约：",
+      "options": [
+       "下降了约0.4个百分点",
+       "上升了约0.1个百分点",
+       "下降了约0.1个百分点",
+       "上升了约0.4个百分点"
+      ],
+      "answer": 2,
+      "tag": "比重变化",
+      "methods": [
+       {
+        "name": "方法一 · 比重差公式",
+        "text": "两期比重差＝(A÷B)×(a－b)÷(1＋a)。其中a－b＝-0.4个百分点，现期比重A÷B≈38.01%，故比重差≈38.01%×(-0.4)÷1.048≈-0.15个百分点，即下降了约0.1个百分点。"
+       },
+       {
+        "name": "方法二 · 方向＋幅度两步法（速算）",
+        "text": "两步秒杀：①定方向——部分增速4.8%＜整体增速5.2%，比重下降，排除两个反向选项；②定大小——比重变化幅度必小于|a－b|＝0.4个百分点，排除等于0.4的选项，直接锁定答案。"
+       }
+      ]
+     },
+     {
+      "id": 25,
+      "stem": "关于上述资料，下列说法不正确的是：",
+      "options": [
+       "第一产业增加值的同比增速高于2.0%",
+       "第二产业增加值的同比增速高于3.9%",
+       "第二产业增加值的同比增量超过577亿元",
+       "第一产业增加值上年值超过1744亿元"
+      ],
+      "answer": 2,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✓正确：实际增速为3.6%，高于2.0%。\nB项✓正确：实际增速为4.8%，高于3.9%。\nC项✗错误：增长量＝11876.5×4.8%÷(1＋4.8%)≈544.0亿元，未超过577。\nD项✓正确：基期量＝1862.4÷(1＋3.6%)≈1797.7亿元，超过1744。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "2-2",
+    "title": "规模以上工业企业营业收入",
+    "text": "2024年S市规模以上工业企业营业收入合计24387.9亿元。其中，国有控股企业9864.2亿元，同比增长3.2%；民营企业14523.7亿元，同比增长7.8%。（模拟数据）",
+    "table": null,
+    "questions": [
+     {
+      "id": 26,
+      "stem": "2024年国有控股企业与民营企业合计的同比增速：",
+      "options": [
+       "介于3.2%与7.8%之间，且更接近7.8%",
+       "等于5.5%",
+       "高于7.8%",
+       "介于3.2%与7.8%之间，且更接近3.2%"
+      ],
+      "answer": 0,
+      "tag": "混合增长率",
+      "methods": [
+       {
+        "name": "方法一 · 定义计算",
+        "text": "整体增速＝(现期之和÷基期之和)－1。基期：国有控股企业＝9864.2÷(1＋3.2%)≈9558.3；民营企业＝14523.7÷(1＋7.8%)≈13472.8。整体增速≈5.89%，介于两者之间且偏向基期量更大的民营企业。"
+       },
+       {
+        "name": "方法二 · 混合居中偏大（速算）",
+        "text": "混合增长率结论：整体增速介于两部分增速之间（3.2%～7.8%），且偏向基期量较大的一方。民营企业基期量更大，故更接近7.8%，直接选，无需计算。这就是「十字交叉」思想的定性用法。"
+       }
+      ]
+     },
+     {
+      "id": 27,
+      "stem": "2023年国有控股企业约为多少亿元？",
+      "options": [
+       "9558.3亿元",
+       "10179.9亿元",
+       "9548.5亿元",
+       "9930.4亿元"
+      ],
+      "answer": 0,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝9864.2÷(1＋3.2%)＝9864.2÷1.032≈9558.3亿元。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋3.2%＝1.032，截取前三位约1.03；分子9864.2截位约9860。直除得前两位约95，结合量级（结果应略小于9864.2）即可锁定9558.3，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 28,
+      "stem": "2024年民营企业占规模以上工业企业营业收入的比重与上年相比约：",
+      "options": [
+       "上升了约1.9个百分点",
+       "下降了约1.1个百分点",
+       "上升了约1.1个百分点",
+       "下降了约1.9个百分点"
+      ],
+      "answer": 2,
+      "tag": "比重变化",
+      "methods": [
+       {
+        "name": "方法一 · 比重差公式",
+        "text": "两期比重差＝(A÷B)×(a－b)÷(1＋a)。其中a－b＝1.9个百分点，现期比重A÷B≈59.55%，故比重差≈59.55%×(1.9)÷1.078≈1.05个百分点，即上升了约1.1个百分点。"
+       },
+       {
+        "name": "方法二 · 方向＋幅度两步法（速算）",
+        "text": "两步秒杀：①定方向——部分增速7.8%＞整体增速5.9%，比重上升，排除两个反向选项；②定大小——比重变化幅度必小于|a－b|＝1.9个百分点，排除等于1.9的选项，直接锁定答案。"
+       }
+      ]
+     },
+     {
+      "id": 29,
+      "stem": "2024年民营企业的同比增量约为多少亿元？（负值表示减少）",
+      "options": [
+       "1228.7亿元",
+       "1681.4亿元",
+       "1050.9亿元",
+       "1132.8亿元"
+      ],
+      "answer": 2,
+      "tag": "增长量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "增长量＝现期量×增长率÷(1＋增长率)＝14523.7×7.8%÷(1＋7.8%)≈1050.9亿元。"
+       },
+       {
+        "name": "方法二 · 特殊分数（速算）",
+        "text": "特殊分数法：7.8%≈1/13（7.69%），增长量≈现期量÷(n＋1)＝14523.7÷14≈1037.4亿元。因7.8%比1/13略大，真实值比估算值略大一点，选最接近的1050.9。"
+       }
+      ]
+     },
+     {
+      "id": 30,
+      "stem": "能够从上述资料中推出的是：",
+      "options": [
+       "国有控股企业的同比增速高于4.6%",
+       "民营企业占规模以上工业企业营业收入的比重较上年上升",
+       "国有控股企业占规模以上工业企业营业收入的比重较上年上升",
+       "国有控股企业上年值超过9845亿元"
+      ],
+      "answer": 1,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✗错误：实际增速为3.2%，不高于4.6%。\nB项✓正确：部分增速7.8%＞整体增速5.9%，比重上升。\nC项✗错误：部分增速3.2%≤整体增速5.9%，比重下降。\nD项✗错误：基期量＝9864.2÷(1＋3.2%)≈9558.3亿元，未超过9845。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "2-3",
+    "title": "粮食生产",
+    "text": "2024年S市粮食总产量为1086.5万吨，同比增长2.1%；粮食播种面积为2568.4万亩，同比增长0.6%。（模拟数据）",
+    "table": null,
+    "questions": [
+     {
+      "id": 31,
+      "stem": "2024年粮食单位面积产量（单产）约为多少公斤/亩？",
+      "options": [
+       "499.2公斤/亩",
+       "423.0公斤/亩",
+       "359.6公斤/亩",
+       "571.1公斤/亩"
+      ],
+      "answer": 1,
+      "tag": "平均数",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "平均数＝总量÷份数＝1086.5÷2568.4（注意单位换算：乘换算系数1000）≈423.0公斤/亩。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分子分母各截前三位≈1090÷2570，直除前两位约42，注意量级（小数点位置）后锁定选项。"
+       }
+      ]
+     },
+     {
+      "id": 32,
+      "stem": "2024年该平均数比上年约增长：",
+      "options": [
+       "1.6%",
+       "1.5%",
+       "1.7%",
+       "35.0%"
+      ],
+      "answer": 1,
+      "tag": "平均数增长率",
+      "methods": [
+       {
+        "name": "方法一 · 平均数增长率公式",
+        "text": "平均数增长率＝(1＋a)÷(1＋b)－1＝(a－b)÷(1＋b)＝(2.1%－0.6%)÷(1＋0.6%)≈1.5%。"
+       },
+       {
+        "name": "方法二 · a－b估算修正（速算）",
+        "text": "估算：先算a－b＝1.5%；因分母1＋0.6%＞1，真实值比1.5%略小，选略小于1.5%的选项。b越大，修正越明显，不能直接选a－b。"
+       }
+      ]
+     },
+     {
+      "id": 33,
+      "stem": "2023年粮食总产量约为多少万吨？",
+      "options": [
+       "1106.2万吨",
+       "1064.2万吨",
+       "1063.7万吨",
+       "1109.3万吨"
+      ],
+      "answer": 1,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝1086.5÷(1＋2.1%)＝1086.5÷1.021≈1064.2万吨。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋2.1%＝1.021，截取前三位约1.02；分子1086.5截位约1090。直除得前两位约10，结合量级（结果应略小于1086.5）即可锁定1064.2，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 34,
+      "stem": "2024年粮食播种面积的同比增量约为多少万亩？（负值表示减少）",
+      "options": [
+       "15.5万亩",
+       "24.5万亩",
+       "15.4万亩",
+       "15.3万亩"
+      ],
+      "answer": 3,
+      "tag": "增长量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "增长量＝现期量×增长率÷(1＋增长率)＝2568.4×0.6%÷(1＋0.6%)≈15.3万亩。"
+       },
+       {
+        "name": "方法二 · 特殊分数（速算）",
+        "text": "特殊分数法：0.6%≈1/20（5.00%），增长量≈现期量÷(n＋1)＝2568.4÷21≈122.3万亩。因0.6%比1/20略小，真实值比估算值略小一点，选最接近的15.3。"
+       }
+      ]
+     },
+     {
+      "id": 35,
+      "stem": "能够从上述资料中推出的是：",
+      "options": [
+       "2024年粮食播种面积的同比增速高于1.4%",
+       "2023年粮食单位面积产量（单产）高于441.8公斤/亩",
+       "2023年粮食总产量超过1011万吨",
+       "2024年粮食总产量的同比增量低于20万吨"
+      ],
+      "answer": 2,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✗错误：实际增速0.6%，低于1.4%。\nB项✗错误：基期平均数≈416.81公斤/亩，不高于该值。\nC项✓正确：基期量≈1064.2万吨，超过该值。\nD项✗错误：增长量≈22.3万吨，高于该值。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "2-4",
+    "title": "一般公共预算收入",
+    "text": "2020—2024年S市一般公共预算收入如下表（模拟数据）。2024年同比增长6.8%。",
+    "table": {
+     "headers": [
+      "年份",
+      "2020",
+      "2021",
+      "2022",
+      "2023",
+      "2024"
+     ],
+     "rows": [
+      [
+       "一般公共预算收入",
+       "2095.6",
+       "2285.4",
+       "2412.8",
+       "2568.3",
+       "2742.6"
+      ]
+     ]
+    },
+    "questions": [
+     {
+      "id": 37,
+      "stem": "2020—2024年，该指标年均增长量约为多少亿元？",
+      "options": [
+       "161.8亿元",
+       "685.6亿元",
+       "215.7亿元",
+       "129.4亿元"
+      ],
+      "answer": 0,
+      "tag": "年均增长量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "年均增长量＝(末期量－初期量)÷年份差＝(2742.6－2095.6)÷(2024－2020)＝647.0÷4≈161.8亿元。"
+       },
+       {
+        "name": "方法二 · 年份差防错＋直除（速算）",
+        "text": "易错点：年份差＝末期年份－初期年份＝4，不是5（不要数项数）。先估647.0÷4的量级，直除首位即可区分选项。"
+       }
+      ]
+     },
+     {
+      "id": 38,
+      "stem": "2024年一般公共预算收入约为2020年一般公共预算收入的多少倍？",
+      "options": [
+       "1.0倍",
+       "1.3倍",
+       "0.3倍",
+       "1.6倍"
+      ],
+      "answer": 1,
+      "tag": "倍数",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "倍数＝A÷B＝2742.6÷2095.6≈1.3倍。注意「是几倍」直接除，「多几倍」才需要减1。"
+       },
+       {
+        "name": "方法二 · 直除首位（速算）",
+        "text": "直除首位：2740÷2100，首位商1，结合选项差距即可确定；选项接近时再除第二位。"
+       }
+      ]
+     },
+     {
+      "id": 39,
+      "stem": "2023年一般公共预算收入约为多少亿元？",
+      "options": [
+       "2556.1亿元",
+       "2929.1亿元",
+       "2568.0亿元",
+       "2658.3亿元"
+      ],
+      "answer": 2,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝2742.6÷(1＋6.8%)＝2742.6÷1.068≈2568.0亿元。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋6.8%＝1.068，截取前三位约1.07；分子2742.6截位约2740。直除得前两位约25，结合量级（结果应略小于2742.6）即可锁定2568.0，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 36,
+      "stem": "2021—2024年中，一般公共预算收入同比增速最快的年份是：",
+      "options": [
+       "2023",
+       "2021",
+       "2022",
+       "2024"
+      ],
+      "answer": 1,
+      "tag": "增长率比较",
+      "methods": [
+       {
+        "name": "方法一 · 逐年计算",
+        "text": "2021年：(2285.4－2095.6)÷2095.6≈9.1%；2022年：(2412.8－2285.4)÷2285.4≈5.6%；2023年：(2568.3－2412.8)÷2412.8≈6.4%；2024年：(2742.6－2568.3)÷2568.3≈6.8%。最快为2021年。"
+       },
+       {
+        "name": "方法二 · 增量÷基期比较（速算）",
+        "text": "比较各年「增量÷上年值」的分数大小：增量相近时基期小的增速快；直除首位即可排序，不必算出精确百分数。"
+       }
+      ]
+     },
+     {
+      "id": 40,
+      "stem": "能够从上述资料中推出的是：",
+      "options": [
+       "2024年一般公共预算收入约为2020年的1.0倍",
+       "2021—2024年一般公共预算收入逐年增长",
+       "2023年一般公共预算收入超过2671亿元",
+       "2024年一般公共预算收入的同比增速高于7.8%"
+      ],
+      "answer": 1,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✗错误：实际倍数≈1.31。\nB项✓正确：逐年比较表中数值即可判断。\nC项✗错误：2023年为2568.3亿元，未超过该值。\nD项✗错误：实际增速6.8%。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "第三套",
+  "materials": [
+   {
+    "id": "3-1",
+    "title": "货物运输",
+    "text": "2024年S市货物运输情况如下表所示（模拟数据）。",
+    "table": {
+     "headers": [
+      "指标",
+      "2024年（万吨）",
+      "同比增量（万吨）"
+     ],
+     "rows": [
+      [
+       "货运总量",
+       "128650.0",
+       "6850.0"
+      ],
+      [
+       "铁路货运量",
+       "9860.0",
+       "420.0"
+      ],
+      [
+       "公路货运量",
+       "105420.0",
+       "5980.0"
+      ],
+      [
+       "水运货运量",
+       "12850.0",
+       "380.0"
+      ],
+      [
+       "民航货运量",
+       "520.0",
+       "70.0"
+      ]
+     ]
+    },
+    "questions": [
+     {
+      "id": 41,
+      "stem": "2024年下列各项中，同比增速最快的是：",
+      "options": [
+       "民航货运量",
+       "铁路货运量",
+       "公路货运量",
+       "水运货运量"
+      ],
+      "answer": 0,
+      "tag": "增长率比较",
+      "methods": [
+       {
+        "name": "方法一 · 逐项计算",
+        "text": "增长率＝增长量÷基期量＝增长量÷(现期量－增长量)。逐项计算：铁路货运量：420.0÷(9860.0－420.0)≈4.4%；公路货运量：5980.0÷(105420.0－5980.0)≈6.0%；水运货运量：380.0÷(12850.0－380.0)≈3.0%；民航货运量：70.0÷(520.0－70.0)≈15.6%。最大者为民航货运量。"
+       },
+       {
+        "name": "方法二 · 分数比较（速算）",
+        "text": "速算：增长率≈增长量÷现期量（略小于真实值但排序基本一致），比较各分数420.0/9860.0、5980.0/105420.0、380.0/12850.0、70.0/520.0的大小，直除首位或交叉相乘比较，最大者即答案，可不算精确值。"
+       }
+      ]
+     },
+     {
+      "id": 42,
+      "stem": "2023年铁路货运量约为多少万吨？",
+      "options": [
+       "9798.2万吨",
+       "10298.7万吨",
+       "9421.3万吨",
+       "9440.0万吨"
+      ],
+      "answer": 3,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝9860.0÷(1＋4.4%)＝9860.0÷1.044≈9440.0万吨。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋4.4%＝1.044，截取前三位约1.04；分子9860.0截位约9860。直除得前两位约94，结合量级（结果应略小于9860.0）即可锁定9440.0，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 43,
+      "stem": "2024年铁路货运量占货运总量的比重约为：",
+      "options": [
+       "7.7%",
+       "7.1%",
+       "8.6%",
+       "8.3%"
+      ],
+      "answer": 0,
+      "tag": "比重",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "比重＝部分÷整体＝9860.0÷128650.0×100%≈7.7%。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：9860.0÷128650.0，分子分母各截前三位≈9860÷129000，直除前两位约76%，对照选项直接锁定。选项差距大时除到第二位即可停。"
+       }
+      ]
+     },
+     {
+      "id": 44,
+      "stem": "2023年公路货运量占货运总量的比重约为：",
+      "options": [
+       "89.8%",
+       "81.9%",
+       "81.6%",
+       "82.2%"
+      ],
+      "answer": 2,
+      "tag": "基期比重",
+      "methods": [
+       {
+        "name": "方法一 · 基期比重公式",
+        "text": "基期比重＝(A÷B)×(1＋b)÷(1＋a)＝(105420.0÷128650.0)×(1＋5.6%)÷(1＋6.0%)≈81.94%×0.996≈81.6%。"
+       },
+       {
+        "name": "方法二 · 方向判断＋排除（速算）",
+        "text": "两步走：先算现期比重≈81.9%；部分增速6.0%＞整体增速5.6%，比重上升，故基期比重应比81.9%小，先排除方向不符的选项，再在剩余选项中估算幅度。"
+       }
+      ]
+     },
+     {
+      "id": 45,
+      "stem": "能够从上述资料中推出的是：",
+      "options": [
+       "公路货运量的同比增速高于7.1%",
+       "铁路货运量的同比增量超过445万吨",
+       "铁路货运量占货运总量的比重较上年上升",
+       "公路货运量占货运总量的比重较上年上升"
+      ],
+      "answer": 3,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✗错误：实际增速为6.0%，不高于7.1%。\nB项✗错误：增长量＝9860.0×4.4%÷(1＋4.4%)≈420.0万吨，未超过445。\nC项✗错误：部分增速4.4%≤整体增速5.6%，比重下降。\nD项✓正确：部分增速6.0%＞整体增速5.6%，比重上升。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "3-2",
+    "title": "金融机构存贷款",
+    "text": "2024年S市金融机构存贷款情况如下表所示（模拟数据）。",
+    "table": {
+     "headers": [
+      "指标",
+      "2024年（亿元）",
+      "同比增长（%）"
+     ],
+     "rows": [
+      [
+       "金融机构本外币存款余额",
+       "52368.4",
+       "8.6"
+      ],
+      [
+       "住户存款",
+       "26845.2",
+       "11.2"
+      ],
+      [
+       "非金融企业存款",
+       "15623.8",
+       "4.5"
+      ],
+      [
+       "金融机构本外币贷款余额",
+       "46825.6",
+       "9.8"
+      ]
+     ]
+    },
+    "questions": [
+     {
+      "id": 46,
+      "stem": "2023年住户存款约为多少亿元？",
+      "options": [
+       "29851.9亿元",
+       "24141.4亿元",
+       "24792.0亿元",
+       "23838.5亿元"
+      ],
+      "answer": 1,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝26845.2÷(1＋11.2%)＝26845.2÷1.112≈24141.4亿元。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋11.2%＝1.112，截取前三位约1.11；分子26845.2截位约26800。直除得前两位约24，结合量级（结果应略小于26845.2）即可锁定24141.4，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 47,
+      "stem": "2024年非金融企业存款的同比增量约为多少亿元？（负值表示减少）",
+      "options": [
+       "736.2亿元",
+       "703.1亿元",
+       "672.8亿元",
+       "1076.5亿元"
+      ],
+      "answer": 2,
+      "tag": "增长量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "增长量＝现期量×增长率÷(1＋增长率)＝15623.8×4.5%÷(1＋4.5%)≈672.8亿元。"
+       },
+       {
+        "name": "方法二 · 特殊分数（速算）",
+        "text": "特殊分数法：4.5%≈1/20（5.00%），增长量≈现期量÷(n＋1)＝15623.8÷21≈744.0亿元。因4.5%比1/20略小，真实值比估算值略小一点，选最接近的672.8。"
+       }
+      ]
+     },
+     {
+      "id": 48,
+      "stem": "2024年住户存款占金融机构本外币存款余额的比重约为：",
+      "options": [
+       "51.3%",
+       "105.2%",
+       "57.4%",
+       "33.9%"
+      ],
+      "answer": 0,
+      "tag": "比重",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "比重＝部分÷整体＝26845.2÷52368.4×100%≈51.3%。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：26845.2÷52368.4，分子分母各截前三位≈26800÷52400，直除前两位约51%，对照选项直接锁定。选项差距大时除到第二位即可停。"
+       }
+      ]
+     },
+     {
+      "id": 49,
+      "stem": "2024年非金融企业存款占金融机构本外币存款余额的比重与上年相比约：",
+      "options": [
+       "下降了约4.1个百分点",
+       "下降了约1.2个百分点",
+       "上升了约1.2个百分点",
+       "上升了约4.1个百分点"
+      ],
+      "answer": 1,
+      "tag": "比重变化",
+      "methods": [
+       {
+        "name": "方法一 · 比重差公式",
+        "text": "两期比重差＝(A÷B)×(a－b)÷(1＋a)。其中a－b＝-4.1个百分点，现期比重A÷B≈29.83%，故比重差≈29.83%×(-4.1)÷1.045≈-1.17个百分点，即下降了约1.2个百分点。"
+       },
+       {
+        "name": "方法二 · 方向＋幅度两步法（速算）",
+        "text": "两步秒杀：①定方向——部分增速4.5%＜整体增速8.6%，比重下降，排除两个反向选项；②定大小——比重变化幅度必小于|a－b|＝4.1个百分点，排除等于4.1的选项，直接锁定答案。"
+       }
+      ]
+     },
+     {
+      "id": 50,
+      "stem": "关于上述资料，下列说法不正确的是：",
+      "options": [
+       "非金融企业存款占金融机构本外币存款余额的比重较上年上升",
+       "金融机构本外币贷款余额的同比增速高于8.2%",
+       "非金融企业存款的同比增量超过639亿元",
+       "住户存款占金融机构本外币存款余额的比重较上年上升"
+      ],
+      "answer": 0,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✗错误：部分增速4.5%≤整体增速8.6%，比重下降。\nB项✓正确：实际增速为9.8%，高于8.2%。\nC项✓正确：增长量＝15623.8×4.5%÷(1＋4.5%)≈672.8亿元，超过639。\nD项✓正确：部分增速11.2%＞整体增速8.6%，比重上升。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "3-3",
+    "title": "医疗卫生",
+    "text": "2024年S市诊疗总人次为28650.0万人次，同比增长7.2%；医疗卫生机构床位数为21.6万张，同比增长3.8%。（模拟数据）",
+    "table": null,
+    "questions": [
+     {
+      "id": 51,
+      "stem": "2024年平均每床诊疗人次约为多少人次/床？",
+      "options": [
+       "1326.4人次/床",
+       "1790.6人次/床",
+       "1565.1人次/床",
+       "1127.4人次/床"
+      ],
+      "answer": 0,
+      "tag": "平均数",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "平均数＝总量÷份数＝28650.0÷21.6≈1326.4人次/床。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分子分母各截前三位≈28600÷21.6，直除前两位约13，注意量级（小数点位置）后锁定选项。"
+       }
+      ]
+     },
+     {
+      "id": 52,
+      "stem": "2024年该平均数比上年约增长：",
+      "options": [
+       "18.9%",
+       "3.2%",
+       "3.4%",
+       "3.3%"
+      ],
+      "answer": 3,
+      "tag": "平均数增长率",
+      "methods": [
+       {
+        "name": "方法一 · 平均数增长率公式",
+        "text": "平均数增长率＝(1＋a)÷(1＋b)－1＝(a－b)÷(1＋b)＝(7.2%－3.8%)÷(1＋3.8%)≈3.3%。"
+       },
+       {
+        "name": "方法二 · a－b估算修正（速算）",
+        "text": "估算：先算a－b＝3.4%；因分母1＋3.8%＞1，真实值比3.4%略小，选略小于3.4%的选项。b越大，修正越明显，不能直接选a－b。"
+       }
+      ]
+     },
+     {
+      "id": 53,
+      "stem": "2023年诊疗总人次约为多少万人次？",
+      "options": [
+       "27650.7万人次",
+       "26587.2万人次",
+       "26725.7万人次",
+       "30712.8万人次"
+      ],
+      "answer": 2,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝28650.0÷(1＋7.2%)＝28650.0÷1.072≈26725.7万人次。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋7.2%＝1.072，截取前三位约1.07；分子28650.0截位约28600。直除得前两位约26，结合量级（结果应略小于28650.0）即可锁定26725.7，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 54,
+      "stem": "2024年医疗卫生机构床位数的同比增量约为多少万张？（负值表示减少）",
+      "options": [
+       "0.9万张",
+       "0.8万张",
+       "1.0万张",
+       "1.3万张"
+      ],
+      "answer": 1,
+      "tag": "增长量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "增长量＝现期量×增长率÷(1＋增长率)＝21.6×3.8%÷(1＋3.8%)≈0.8万张。"
+       },
+       {
+        "name": "方法二 · 特殊分数（速算）",
+        "text": "特殊分数法：3.8%≈1/20（5.00%），增长量≈现期量÷(n＋1)＝21.6÷21≈1.0万张。因3.8%比1/20略小，真实值比估算值略小一点，选最接近的0.8。"
+       }
+      ]
+     },
+     {
+      "id": 55,
+      "stem": "关于上述资料，下列说法不正确的是：",
+      "options": [
+       "2024年平均每床诊疗人次比上年增加",
+       "2023年医疗卫生机构床位数低于22万张",
+       "2024年医疗卫生机构床位数的同比增速高于4.6%",
+       "2023年诊疗总人次超过25389万人次"
+      ],
+      "answer": 2,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✓正确：总量增速7.2%＞份数增速3.8%，平均数上升。\nB项✓正确：基期量≈20.8万张，低于该值。\nC项✗错误：实际增速3.8%，低于4.6%。\nD项✓正确：基期量≈26725.7万人次，超过该值。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "3-4",
+    "title": "网上零售额",
+    "text": "2020—2024年S市网上零售额如下表（模拟数据）。2024年同比增长14.0%。",
+    "table": {
+     "headers": [
+      "年份",
+      "2020",
+      "2021",
+      "2022",
+      "2023",
+      "2024"
+     ],
+     "rows": [
+      [
+       "网上零售额",
+       "1862.4",
+       "2245.6",
+       "2586.3",
+       "2948.5",
+       "3362.7"
+      ]
+     ]
+    },
+    "questions": [
+     {
+      "id": 57,
+      "stem": "2020—2024年，该指标年均增长量约为多少亿元？",
+      "options": [
+       "300.1亿元",
+       "375.1亿元",
+       "840.7亿元",
+       "500.1亿元"
+      ],
+      "answer": 1,
+      "tag": "年均增长量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "年均增长量＝(末期量－初期量)÷年份差＝(3362.7－1862.4)÷(2024－2020)＝1500.3÷4≈375.1亿元。"
+       },
+       {
+        "name": "方法二 · 年份差防错＋直除（速算）",
+        "text": "易错点：年份差＝末期年份－初期年份＝4，不是5（不要数项数）。先估1500.3÷4的量级，直除首位即可区分选项。"
+       }
+      ]
+     },
+     {
+      "id": 58,
+      "stem": "2024年网上零售额约为2020年网上零售额的多少倍？",
+      "options": [
+       "1.8倍",
+       "2.3倍",
+       "1.4倍",
+       "0.8倍"
+      ],
+      "answer": 0,
+      "tag": "倍数",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "倍数＝A÷B＝3362.7÷1862.4≈1.8倍。注意「是几倍」直接除，「多几倍」才需要减1。"
+       },
+       {
+        "name": "方法二 · 直除首位（速算）",
+        "text": "直除首位：3360÷1860，首位商1，结合选项差距即可确定；选项接近时再除第二位。"
+       }
+      ]
+     },
+     {
+      "id": 59,
+      "stem": "2023年网上零售额约为多少亿元？",
+      "options": [
+       "3833.5亿元",
+       "2891.9亿元",
+       "2949.7亿元",
+       "3007.6亿元"
+      ],
+      "answer": 2,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝3362.7÷(1＋14.0%)＝3362.7÷1.140≈2949.7亿元。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋14.0%＝1.140，截取前三位约1.14；分子3362.7截位约3360。直除得前两位约29，结合量级（结果应略小于3362.7）即可锁定2949.7，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 56,
+      "stem": "2021—2024年中，网上零售额同比增速最快的年份是：",
+      "options": [
+       "2021",
+       "2022",
+       "2024",
+       "2023"
+      ],
+      "answer": 0,
+      "tag": "增长率比较",
+      "methods": [
+       {
+        "name": "方法一 · 逐年计算",
+        "text": "2021年：(2245.6－1862.4)÷1862.4≈20.6%；2022年：(2586.3－2245.6)÷2245.6≈15.2%；2023年：(2948.5－2586.3)÷2586.3≈14.0%；2024年：(3362.7－2948.5)÷2948.5≈14.0%。最快为2021年。"
+       },
+       {
+        "name": "方法二 · 增量÷基期比较（速算）",
+        "text": "比较各年「增量÷上年值」的分数大小：增量相近时基期小的增速快；直除首位即可排序，不必算出精确百分数。"
+       }
+      ]
+     },
+     {
+      "id": 60,
+      "stem": "关于上述资料，下列说法不正确的是：",
+      "options": [
+       "2021—2024年网上零售额逐年增长",
+       "2024年网上零售额约为2020年的2.0倍",
+       "2020—2024年网上零售额翻了两番",
+       "2024年网上零售额的同比增量超过381亿元"
+      ],
+      "answer": 2,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✓正确：逐年比较表中数值即可判断。\nB项✓正确：实际倍数≈1.81。\nC项✗错误：末期÷初期≈1.81，翻两番需达到4倍。\nD项✓正确：增量＝414.2亿元，超过该值。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "第四套",
+  "materials": [
+   {
+    "id": "4-1",
+    "title": "房地产开发投资",
+    "text": "2024年S市房地产开发投资情况如下表所示（模拟数据）。",
+    "table": {
+     "headers": [
+      "指标",
+      "2024年（亿元）",
+      "同比增长（%）"
+     ],
+     "rows": [
+      [
+       "房地产开发投资总额",
+       "4265.8",
+       "-6.2"
+      ],
+      [
+       "住宅投资",
+       "3124.6",
+       "-5.8"
+      ],
+      [
+       "办公楼投资",
+       "286.4",
+       "-9.6"
+      ],
+      [
+       "商业营业用房投资",
+       "425.3",
+       "-8.4"
+      ]
+     ]
+    },
+    "questions": [
+     {
+      "id": 61,
+      "stem": "2023年住宅投资约为多少亿元？",
+      "options": [
+       "3317.0亿元",
+       "3305.8亿元",
+       "2943.4亿元",
+       "3438.0亿元"
+      ],
+      "answer": 0,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝3124.6÷(1－5.8%)＝3124.6÷0.942≈3317.0亿元。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋-5.8%＝0.942，截取前三位约0.942；分子3124.6截位约3120。直除得前两位约33，结合量级（结果应略大于3124.6）即可锁定3317.0，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 62,
+      "stem": "2024年办公楼投资的同比增量约为多少亿元？（负值表示减少）",
+      "options": [
+       "-27.5亿元",
+       "-25.1亿元",
+       "-48.7亿元",
+       "-30.4亿元"
+      ],
+      "answer": 3,
+      "tag": "增长量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "增长量＝现期量×增长率÷(1＋增长率)＝286.4×(－9.6%)÷(1－9.6%)≈-30.4亿元。"
+       },
+       {
+        "name": "方法二 · 特殊分数（速算）",
+        "text": "负增长用减少量公式：|r|＝9.6%≈1/10，减少量≈现期量÷(n－1)＝286.4÷9≈31.8亿元，增长量为其相反数≈－31.8亿元，选最接近的-30.4。"
+       }
+      ]
+     },
+     {
+      "id": 63,
+      "stem": "2024年住宅投资占房地产开发投资总额的比重约为：",
+      "options": [
+       "73.2%",
+       "42.3%",
+       "82.0%",
+       "273.8%"
+      ],
+      "answer": 0,
+      "tag": "比重",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "比重＝部分÷整体＝3124.6÷4265.8×100%≈73.2%。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：3124.6÷4265.8，分子分母各截前三位≈3120÷4270，直除前两位约73%，对照选项直接锁定。选项差距大时除到第二位即可停。"
+       }
+      ]
+     },
+     {
+      "id": 64,
+      "stem": "2024年办公楼投资占房地产开发投资总额的比重与上年相比约：",
+      "options": [
+       "上升了约0.3个百分点",
+       "下降了约0.3个百分点",
+       "上升了约3.4个百分点",
+       "下降了约3.4个百分点"
+      ],
+      "answer": 1,
+      "tag": "比重变化",
+      "methods": [
+       {
+        "name": "方法一 · 比重差公式",
+        "text": "两期比重差＝(A÷B)×(a－b)÷(1＋a)。其中a－b＝-3.4个百分点，现期比重A÷B≈6.71%，故比重差≈6.71%×(-3.4)÷0.904≈-0.25个百分点，即下降了约0.3个百分点。"
+       },
+       {
+        "name": "方法二 · 方向＋幅度两步法（速算）",
+        "text": "两步秒杀：①定方向——部分增速-9.6%＜整体增速-6.2%，比重下降，排除两个反向选项；②定大小——比重变化幅度必小于|a－b|＝3.4个百分点，排除等于3.4的选项，直接锁定答案。"
+       }
+      ]
+     },
+     {
+      "id": 65,
+      "stem": "能够从上述资料中推出的是：",
+      "options": [
+       "商业营业用房投资的同比增速高于-7.0%",
+       "住宅投资上年值超过3483亿元",
+       "办公楼投资占房地产开发投资总额的比重较上年上升",
+       "住宅投资占房地产开发投资总额的比重较上年上升"
+      ],
+      "answer": 3,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✗错误：实际增速为-8.4%，不高于-7.0%。\nB项✗错误：基期量＝3124.6÷(1＋-5.8%)≈3317.0亿元，未超过3483。\nC项✗错误：部分增速-9.6%≤整体增速-6.2%，比重下降。\nD项✓正确：部分增速-5.8%＞整体增速-6.2%，比重上升。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "4-2",
+    "title": "社会消费品零售总额",
+    "text": "2024年S市社会消费品零售总额合计15238.6亿元。其中，商品零售13486.5亿元，同比增长5.5%；餐饮收入1752.1亿元，同比增长8.2%。（模拟数据）",
+    "table": null,
+    "questions": [
+     {
+      "id": 66,
+      "stem": "2024年商品零售与餐饮收入合计的同比增速：",
+      "options": [
+       "等于6.8%",
+       "高于8.2%",
+       "介于5.5%与8.2%之间，且更接近8.2%",
+       "介于5.5%与8.2%之间，且更接近5.5%"
+      ],
+      "answer": 3,
+      "tag": "混合增长率",
+      "methods": [
+       {
+        "name": "方法一 · 定义计算",
+        "text": "整体增速＝(现期之和÷基期之和)－1。基期：商品零售＝13486.5÷(1＋5.5%)≈12783.4；餐饮收入＝1752.1÷(1＋8.2%)≈1619.3。整体增速≈5.80%，介于两者之间且偏向基期量更大的商品零售。"
+       },
+       {
+        "name": "方法二 · 混合居中偏大（速算）",
+        "text": "混合增长率结论：整体增速介于两部分增速之间（5.5%～8.2%），且偏向基期量较大的一方。商品零售基期量更大，故更接近5.5%，直接选，无需计算。这就是「十字交叉」思想的定性用法。"
+       }
+      ]
+     },
+     {
+      "id": 67,
+      "stem": "2023年商品零售约为多少亿元？",
+      "options": [
+       "13254.5亿元",
+       "12744.7亿元",
+       "12783.4亿元",
+       "14228.3亿元"
+      ],
+      "answer": 2,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝13486.5÷(1＋5.5%)＝13486.5÷1.055≈12783.4亿元。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋5.5%＝1.055，截取前三位约1.05；分子13486.5截位约13500。直除得前两位约12，结合量级（结果应略小于13486.5）即可锁定12783.4，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 68,
+      "stem": "2024年餐饮收入占社会消费品零售总额的比重与上年相比约：",
+      "options": [
+       "下降了约2.4个百分点",
+       "上升了约2.4个百分点",
+       "上升了约0.3个百分点",
+       "下降了约0.3个百分点"
+      ],
+      "answer": 2,
+      "tag": "比重变化",
+      "methods": [
+       {
+        "name": "方法一 · 比重差公式",
+        "text": "两期比重差＝(A÷B)×(a－b)÷(1＋a)。其中a－b＝2.4个百分点，现期比重A÷B≈11.50%，故比重差≈11.50%×(2.4)÷1.082≈0.25个百分点，即上升了约0.3个百分点。"
+       },
+       {
+        "name": "方法二 · 方向＋幅度两步法（速算）",
+        "text": "两步秒杀：①定方向——部分增速8.2%＞整体增速5.8%，比重上升，排除两个反向选项；②定大小——比重变化幅度必小于|a－b|＝2.4个百分点，排除等于2.4的选项，直接锁定答案。"
+       }
+      ]
+     },
+     {
+      "id": 69,
+      "stem": "2024年餐饮收入的同比增量约为多少亿元？（负值表示减少）",
+      "options": [
+       "132.8亿元",
+       "212.5亿元",
+       "143.7亿元",
+       "156.5亿元"
+      ],
+      "answer": 0,
+      "tag": "增长量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "增长量＝现期量×增长率÷(1＋增长率)＝1752.1×8.2%÷(1＋8.2%)≈132.8亿元。"
+       },
+       {
+        "name": "方法二 · 特殊分数（速算）",
+        "text": "特殊分数法：8.2%≈1/12（8.33%），增长量≈现期量÷(n＋1)＝1752.1÷13≈134.8亿元。因8.2%比1/12略小，真实值比估算值略小一点，选最接近的132.8。"
+       }
+      ]
+     },
+     {
+      "id": 70,
+      "stem": "能够从上述资料中推出的是：",
+      "options": [
+       "商品零售占社会消费品零售总额的比重较上年上升",
+       "商品零售的同比增速高于6.9%",
+       "餐饮收入的同比增量超过120亿元",
+       "商品零售上年值超过13423亿元"
+      ],
+      "answer": 2,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✗错误：部分增速5.5%≤整体增速5.8%，比重下降。\nB项✗错误：实际增速为5.5%，不高于6.9%。\nC项✓正确：增长量＝1752.1×8.2%÷(1＋8.2%)≈132.8亿元，超过120。\nD项✗错误：基期量＝13486.5÷(1＋5.5%)≈12783.4亿元，未超过13423。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "4-3",
+    "title": "软件业",
+    "text": "2024年S市软件业务收入为3862.4亿元，同比增长13.5%；软件企业数量为4260.0家，同比增长6.2%。（模拟数据）",
+    "table": null,
+    "questions": [
+     {
+      "id": 71,
+      "stem": "2024年平均每家软件企业收入约为多少万元/家？",
+      "options": [
+       "12240.0万元/家",
+       "10698.7万元/家",
+       "7706.7万元/家",
+       "9066.7万元/家"
+      ],
+      "answer": 3,
+      "tag": "平均数",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "平均数＝总量÷份数＝3862.4÷4260.0（注意单位换算：乘换算系数10000）≈9066.7万元/家。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分子分母各截前三位≈3860÷4260，直除前两位约90，注意量级（小数点位置）后锁定选项。"
+       }
+      ]
+     },
+     {
+      "id": 72,
+      "stem": "2024年该平均数比上年约增长：",
+      "options": [
+       "6.4%",
+       "21.8%",
+       "6.9%",
+       "7.3%"
+      ],
+      "answer": 2,
+      "tag": "平均数增长率",
+      "methods": [
+       {
+        "name": "方法一 · 平均数增长率公式",
+        "text": "平均数增长率＝(1＋a)÷(1＋b)－1＝(a－b)÷(1＋b)＝(13.5%－6.2%)÷(1＋6.2%)≈6.9%。"
+       },
+       {
+        "name": "方法二 · a－b估算修正（速算）",
+        "text": "估算：先算a－b＝7.3%；因分母1＋6.2%＞1，真实值比7.3%略小，选略小于7.3%的选项。b越大，修正越明显，不能直接选a－b。"
+       }
+      ]
+     },
+     {
+      "id": 73,
+      "stem": "2023年软件业务收入约为多少亿元？",
+      "options": [
+       "4383.8亿元",
+       "3474.6亿元",
+       "3403.0亿元",
+       "3341.0亿元"
+      ],
+      "answer": 2,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝3862.4÷(1＋13.5%)＝3862.4÷1.135≈3403.0亿元。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋13.5%＝1.135，截取前三位约1.14；分子3862.4截位约3860。直除得前两位约34，结合量级（结果应略小于3862.4）即可锁定3403.0，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 74,
+      "stem": "2024年软件企业数量的同比增量约为多少家？（负值表示减少）",
+      "options": [
+       "264.1家",
+       "397.9家",
+       "248.7家",
+       "281.6家"
+      ],
+      "answer": 2,
+      "tag": "增长量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "增长量＝现期量×增长率÷(1＋增长率)＝4260.0×6.2%÷(1＋6.2%)≈248.7家。"
+       },
+       {
+        "name": "方法二 · 特殊分数（速算）",
+        "text": "特殊分数法：6.2%≈1/16（6.25%），增长量≈现期量÷(n＋1)＝4260.0÷17≈250.6家。因6.2%比1/16略小，真实值比估算值略小一点，选最接近的248.7。"
+       }
+      ]
+     },
+     {
+      "id": 75,
+      "stem": "能够从上述资料中推出的是：",
+      "options": [
+       "2024年软件业务收入的同比增量低于413亿元",
+       "2023年平均每家软件企业收入高于8992.5万元/家",
+       "2024年软件企业数量的同比增速高于7.0%",
+       "2023年软件企业数量低于4212家"
+      ],
+      "answer": 3,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✗错误：增长量≈459.4亿元，高于该值。\nB项✗错误：基期平均数≈8483.52万元/家，不高于该值。\nC项✗错误：实际增速6.2%，低于7.0%。\nD项✓正确：基期量≈4011.3家，低于该值。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "4-4",
+    "title": "电信业务总量",
+    "text": "2020—2024年S市电信业务总量如下表（模拟数据）。2024年同比增长18.8%。",
+    "table": {
+     "headers": [
+      "年份",
+      "2020",
+      "2021",
+      "2022",
+      "2023",
+      "2024"
+     ],
+     "rows": [
+      [
+       "电信业务总量",
+       "862.5",
+       "1024.6",
+       "1218.3",
+       "1452.8",
+       "1726.4"
+      ]
+     ]
+    },
+    "questions": [
+     {
+      "id": 77,
+      "stem": "2020—2024年，该指标年均增长量约为多少亿元？",
+      "options": [
+       "431.6亿元",
+       "172.8亿元",
+       "216.0亿元",
+       "288.0亿元"
+      ],
+      "answer": 2,
+      "tag": "年均增长量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "年均增长量＝(末期量－初期量)÷年份差＝(1726.4－862.5)÷(2024－2020)＝863.9÷4≈216.0亿元。"
+       },
+       {
+        "name": "方法二 · 年份差防错＋直除（速算）",
+        "text": "易错点：年份差＝末期年份－初期年份＝4，不是5（不要数项数）。先估863.9÷4的量级，直除首位即可区分选项。"
+       }
+      ]
+     },
+     {
+      "id": 78,
+      "stem": "2024年电信业务总量约为2020年电信业务总量的多少倍？",
+      "options": [
+       "1.0倍",
+       "2.5倍",
+       "2.0倍",
+       "1.6倍"
+      ],
+      "answer": 2,
+      "tag": "倍数",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "倍数＝A÷B＝1726.4÷862.5≈2.0倍。注意「是几倍」直接除，「多几倍」才需要减1。"
+       },
+       {
+        "name": "方法二 · 直除首位（速算）",
+        "text": "直除首位：1730÷862，首位商2，结合选项差距即可确定；选项接近时再除第二位。"
+       }
+      ]
+     },
+     {
+      "id": 79,
+      "stem": "2023年电信业务总量约为多少亿元？",
+      "options": [
+       "1457.9亿元",
+       "1401.8亿元",
+       "2051.0亿元",
+       "1453.2亿元"
+      ],
+      "answer": 3,
+      "tag": "基期量",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "基期量＝现期量÷(1＋增长率)＝1726.4÷(1＋18.8%)＝1726.4÷1.188≈1453.2亿元。"
+       },
+       {
+        "name": "方法二 · 截位直除（速算）",
+        "text": "截位直除：分母1＋18.8%＝1.188，截取前三位约1.19；分子1726.4截位约1730。直除得前两位约14，结合量级（结果应略小于1726.4）即可锁定1453.2，无需算完。"
+       }
+      ]
+     },
+     {
+      "id": 76,
+      "stem": "2021—2024年中，电信业务总量同比增速最快的年份是：",
+      "options": [
+       "2021",
+       "2024",
+       "2023",
+       "2022"
+      ],
+      "answer": 2,
+      "tag": "增长率比较",
+      "methods": [
+       {
+        "name": "方法一 · 逐年计算",
+        "text": "2021年：(1024.6－862.5)÷862.5≈18.8%；2022年：(1218.3－1024.6)÷1024.6≈18.9%；2023年：(1452.8－1218.3)÷1218.3≈19.2%；2024年：(1726.4－1452.8)÷1452.8≈18.8%。最快为2023年。"
+       },
+       {
+        "name": "方法二 · 增量÷基期比较（速算）",
+        "text": "比较各年「增量÷上年值」的分数大小：增量相近时基期小的增速快；直除首位即可排序，不必算出精确百分数。"
+       }
+      ]
+     },
+     {
+      "id": 80,
+      "stem": "能够从上述资料中推出的是：",
+      "options": [
+       "2021—2024年电信业务总量逐年增长",
+       "2024年电信业务总量的同比增速高于19.8%",
+       "2020—2024年电信业务总量翻了两番",
+       "2023年电信业务总量超过1511亿元"
+      ],
+      "answer": 0,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 逐项验证",
+        "text": "A项✓正确：逐年比较表中数值即可判断。\nB项✗错误：实际增速18.8%。\nC项✗错误：末期÷初期≈2.00，翻两番需达到4倍。\nD项✗错误：2023年为1452.8亿元，未超过该值。"
+       },
+       {
+        "name": "方法二 · 验证顺序策略",
+        "text": "应试策略：综合分析题从计算量最小的选项开始验证（直接读数、比较大小类优先），发现符合题意的立即停笔；「是几倍」「超过」类表述先估量级。四个选项都要能判断，但考场上不必都算完。"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+],"zhenti":[
+ {
+  "name": "2024年国考·行政执法卷真题",
+  "cat": "zhenti",
+  "target": 1560,
+  "cutoff": 1800,
+  "source": "2024年国家公务员考试《行测》行政执法卷（考生回忆版），数据经华图、知乎等多源交叉核对，全部答案程序核验。",
+  "materials": [
+   {
+    "id": "zt24-1",
+    "title": "12315工作机构接收诉求情况",
+    "text": "2022年，S省各级12315工作机构共接收诉求220.4万件，同比增长21.41%。其中，投诉55.6万件、举报26.3万件、咨询138.5万件，比上一年分别增加14.0万件、8.9万件、16.0万件。",
+    "tables": [
+     {
+      "caption": "2022年S省各级12315工作机构各渠道投诉、举报接收量（单位：件）",
+      "headers": [
+       "渠道",
+       "投诉",
+       "举报"
+      ],
+      "rows": [
+       [
+        "热线电话",
+        "304498",
+        "61021"
+       ],
+       [
+        "互联网渠道·官方网站",
+        "62890",
+        "121266"
+       ],
+       [
+        "互联网渠道·微信小程序",
+        "92029",
+        "35292"
+       ],
+       [
+        "互联网渠道·APP",
+        "78696",
+        "38045"
+       ],
+       [
+        "互联网渠道·公众号",
+        "7189",
+        "2518"
+       ],
+       [
+        "互联网渠道·其他小程序",
+        "7280",
+        "2304"
+       ],
+       [
+        "来函",
+        "2078",
+        "2291"
+       ],
+       [
+        "其他",
+        "1403",
+        "392"
+       ],
+       [
+        "合计",
+        "556063",
+        "263129"
+       ]
+      ]
+     },
+     {
+      "caption": "2022年S省各级12315工作机构各月接收诉求量（单位：万件）",
+      "headers": [
+       "月份",
+       "1月",
+       "2月",
+       "3月",
+       "4月",
+       "5月",
+       "6月",
+       "7月",
+       "8月",
+       "9月",
+       "10月",
+       "11月",
+       "12月"
+      ],
+      "rows": [
+       [
+        "诉求量",
+        "15.2",
+        "12.8",
+        "20.1",
+        "16.6",
+        "18.5",
+        "21.2",
+        "20.0",
+        "22.0",
+        "21.6",
+        "17.7",
+        "17.8",
+        "17.0"
+       ]
+      ]
+     }
+    ],
+    "questions": [
+     {
+      "stem": "将S省各级12315工作机构接收的投诉、举报和咨询三类诉求量按2022年同比增速从高到低排序，以下正确的是：",
+      "options": [
+       "投诉量、举报量、咨询量",
+       "咨询量、投诉量、举报量",
+       "举报量、咨询量、投诉量",
+       "举报量、投诉量、咨询量"
+      ],
+      "answer": 3,
+      "tag": "增长率比较",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "增长率＝增长量÷基期量＝增长量÷(现期量－增长量)。投诉：14.0÷(55.6－14.0)＝14.0÷41.6≈33.7%；举报：8.9÷(26.3－8.9)＝8.9÷17.4≈51.1%；咨询：16.0÷(138.5－16.0)＝16.0÷122.5≈13.1%。排序：举报＞投诉＞咨询，选D。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "已知现期量和增长量比增速，直接比\"增长量÷现期量\"即可（与真实增速同向）：14/55.6≈1/4，8.9/26.3≈1/3，16/138.5≈1/9。1/3最大、1/9最小，秒定D，无需算基期。"
+       }
+      ],
+      "id": 1001
+     },
+     {
+      "stem": "2022年，S省各级12315工作机构热线电话投诉接收件数占投诉总件数的比重比热线电话举报接收件数占举报总件数的比重：",
+      "options": [
+       "高不到20个百分点",
+       "高20个百分点以上",
+       "低不到20个百分点",
+       "低20个百分点以上"
+      ],
+      "answer": 1,
+      "tag": "比重",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "投诉比重＝304498÷556063≈54.8%；举报比重＝61021÷263129≈23.2%。差＝54.8%－23.2%＝31.6个百分点＞20，且投诉比重更高，选B。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "截位直除：30.4÷55.6首位商5（约55%），6.1÷26.3首位商2（约23%），55%－23%≈32个百分点，远超20，直接选\"高20个百分点以上\"。两个比重各自除到首位即可，不必精算。"
+       }
+      ],
+      "id": 1002
+     },
+     {
+      "stem": "2022年，S省各级12315工作机构接收诉求量最少的季度是：",
+      "options": [
+       "第一季度",
+       "第二季度",
+       "第三季度",
+       "第四季度"
+      ],
+      "answer": 0,
+      "tag": "简单计算",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "各季度求和：一季度15.2＋12.8＋20.1＝48.1；二季度16.6＋18.5＋21.2＝56.3；三季度20.0＋22.0＋21.6＝63.6；四季度17.7＋17.8＋17.0＝52.5。最少为一季度，选A。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "逐月对位比较：一季度三个月15.2、12.8、20.1分别小于二季度对应位置的16.6、18.5、21.2，也整体低于三季度（全部20+）；与四季度比，20.1比17.0多3.1，但12.8比17.8少5、15.2比17.7少2.5，净少4.4。故一季度最少，选A。"
+       }
+      ],
+      "id": 1003
+     },
+     {
+      "stem": "以下折线图反映了2022年哪一时间段内S省各级12315工作机构的接收诉求量环比增量的变化趋势？（原题为折线图，此处用文字等价描述：连续4个月的环比增量中，第1个月为显著偏高的正值，第2个月降至负值，第3、4个月回升为正值且逐月抬升）",
+      "options": [
+       "2～5月",
+       "3～6月",
+       "5～8月",
+       "8～11月"
+      ],
+      "answer": 1,
+      "tag": "增长量比较",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "环比增量＝本月－上月。3～6月：3月20.1－12.8＝＋7.3（显著偏高）；4月16.6－20.1＝－3.5（负值）；5月18.5－16.6＝＋1.9；6月21.2－18.5＝＋2.7（逐月抬升），完全符合描述，选B。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "抓特征排除：首月增量必须最高且为正——2月增量为负（12.8－15.2），排除A；5～8月中7月增量为负（20.0－22.0），且首月＋1.9不是最高，排除C；8～11月首月＋2.0后连续为负，排除D。锁定B。"
+       }
+      ],
+      "id": 1004
+     },
+     {
+      "stem": "关于2022年S省各级12315工作机构接收诉求状况，不能从上述资料中推出的是：",
+      "options": [
+       "2～12月间，接收诉求件数环比增量最大的是3月",
+       "全年接收诉求件数最多月份的诉求件数是最少月份的1.5倍以上",
+       "全年举报接收量占本渠道投诉、举报接收量比重最高的渠道是来函",
+       "全年互联网渠道投诉、举报接收件数超过40万件"
+      ],
+      "answer": 2,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "A：3月环比增量7.3万件为各月最大，正确。B：最多8月22.0，最少2月12.8，22.0÷12.8≈1.72＞1.5，正确。C：举报占本渠道比重最高即比\"举报÷投诉\"：来函2291÷2078≈1.10，官方网站121266÷62890≈1.93，最高是官方网站而非来函，错误，选C。D：互联网渠道合计447509件＞40万，正确。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "C项用分数性质：比重＝举报/(投诉+举报)，比重大小等价于比\"举报/投诉\"。来函略大于1，官方网站接近2，一眼排除来函。D项高位叠加：(12.1+9.2)+(7.9+3.5)+(6.3+3.8)≈42万＞40万，正确。考场上优先验证计算量小的C。"
+       }
+      ],
+      "id": 1005
+     }
+    ]
+   },
+   {
+    "id": "zt24-2",
+    "title": "中型灌区续建配套与节水改造项目成效",
+    "text": "2022年全国及部分省份中型灌区续建配套与节水改造项目成效情况如下表。",
+    "tables": [
+     {
+      "caption": "2022年全国及部分省份中型灌区续建配套与节水改造项目成效情况",
+      "headers": [
+       "地区",
+       "新增恢复灌溉面积(万亩)",
+       "改善灌溉面积(万亩)",
+       "新增粮食生产能力(万公斤)",
+       "新增节水能力(万立方米)"
+      ],
+      "rows": [
+       [
+        "全国合计",
+        "264.8",
+        "1168.4",
+        "121918.9",
+        "121283.6"
+       ],
+       [
+        "辽宁",
+        "1.8",
+        "11.1",
+        "340.5",
+        "1662.2"
+       ],
+       [
+        "吉林",
+        "9.4",
+        "25.6",
+        "3690.2",
+        "2601.9"
+       ],
+       [
+        "黑龙江",
+        "13.4",
+        "73.4",
+        "8443.6",
+        "8999.3"
+       ],
+       [
+        "安徽",
+        "27.6",
+        "66.4",
+        "5422.5",
+        "6499.5"
+       ],
+       [
+        "江西",
+        "15.0",
+        "40.5",
+        "7469.1",
+        "6997.1"
+       ],
+       [
+        "河南",
+        "11.5",
+        "53.2",
+        "4320.2",
+        "3291.5"
+       ],
+       [
+        "湖北",
+        "26.2",
+        "70.1",
+        "5039.3",
+        "10254.1"
+       ],
+       [
+        "湖南",
+        "27.0",
+        "64.1",
+        "10885.0",
+        "10055.2"
+       ],
+       [
+        "山西",
+        "6.3",
+        "25.2",
+        "3785.6",
+        "1020.6"
+       ]
+      ]
+     }
+    ],
+    "questions": [
+     {
+      "stem": "2022年，中部六省中型灌区新增恢复灌溉面积是东北三省的：",
+      "options": [
+       "4.5～5倍之间",
+       "4～4.5倍之间",
+       "不到4倍",
+       "5倍以上"
+      ],
+      "answer": 0,
+      "tag": "倍数",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "中部六省合计＝27.6＋15.0＋11.5＋26.2＋27.0＋6.3＝113.6万亩；东北三省＝1.8＋9.4＋13.4＝24.6万亩。113.6÷24.6≈4.62倍，落在4.5～5之间，选A。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "先截位后加减：中部≈28＋15＋12＋26＋27＋6＝114，东北≈2＋9＋13＝24，114÷24首位商4，余数对应第二位约6，得4.6，锁定A。选项临界值4.5，需除到第二位。"
+       }
+      ],
+      "id": 1006
+     },
+     {
+      "stem": "2022年，中部六省中型灌区新增节水能力占全国中型灌区的：",
+      "options": [
+       "不到三成",
+       "一半以上",
+       "三成多",
+       "四成多"
+      ],
+      "answer": 2,
+      "tag": "比重",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "中部六省节水能力＝6499.5＋6997.1＋3291.5＋10254.1＋10055.2＋1020.6＝38118.0万立方米。占全国121283.6的比重＝38118÷121283.6≈31.4%，三成多，选C。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "高位叠加：中部≈65＋70＋33＋103＋100＋10＝381（百位），全国≈1213（百位）。1213×30%≈364＜381＜1213×40%≈485，故在三成与四成之间，选C。"
+       }
+      ],
+      "id": 1007
+     },
+     {
+      "stem": "2022年，中型灌区改善灌溉面积与新增恢复灌溉面积比值最大的中部省份是：",
+      "options": [
+       "山西",
+       "湖北",
+       "河南",
+       "江西"
+      ],
+      "answer": 2,
+      "tag": "比值比较",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "山西25.2÷6.3＝4.0；湖北70.1÷26.2≈2.68；河南53.2÷11.5≈4.63；江西40.5÷15.0＝2.7。最大为河南，选C。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "直除首位：湖北、江西首位商2，先排除；山西25.2÷6.3恰好商4整；河南53.2÷11.5商4后余7.2，还能再除，＞4。故河南最大。注意山西是\"恰好4倍\"的干扰项。"
+       }
+      ],
+      "id": 1008
+     },
+     {
+      "stem": "2022年全国粮食产量同比增加368万吨。如全国中型灌区新增粮食生产能力均得到充分利用，则中部六省中型灌区新增粮食生产能力对全国粮食增产的贡献占比为：",
+      "options": [
+       "不到2%",
+       "超过9%",
+       "2%～5%之间",
+       "5%～9%之间"
+      ],
+      "answer": 1,
+      "tag": "贡献率",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "贡献率＝部分增量÷整体增量。中部六省新增粮食生产能力＝5422.5＋7469.1＋4320.2＋5039.3＋10885.0＋3785.6＝36921.7万公斤＝36.92万吨。贡献占比＝36.92÷368≈10.0%＞9%，选B。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "单位换算是关键：1吨＝1000公斤，368万吨＝368000万公斤。中部≈37000万公斤，368000×9%＝33120＜37000，故超过9%。注意分母是题干给的\"增产量368万吨\"，不是表格全国合计121918.9。"
+       }
+      ],
+      "id": 1009
+     },
+     {
+      "stem": "在资料所给中型灌区续建配套与节水改造项目成效的4个指标中，东北三省占全国比重超过10%的指标有几个？",
+      "options": [
+       "1",
+       "2",
+       "3",
+       "4"
+      ],
+      "answer": 1,
+      "tag": "比重",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "新增恢复：24.6÷264.8≈9.3%＜10%；改善：110.1÷1168.4≈9.4%＜10%；粮食：12474.3÷121918.9≈10.2%＞10%；节水：13263.4÷121283.6≈10.9%＞10%。共2个，选B。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "反向乘法更快：全国的10%分别为26.48、116.84、12191.89、12128.36。东北对应24.6（不足）、110.1（不足）、12474.3（超过）、13263.4（超过），2个达标。用\"部分＞整体×10%\"判断，避免除法。"
+       }
+      ],
+      "id": 1010
+     }
+    ]
+   },
+   {
+    "id": "zt24-3",
+    "title": "电化学储能电站投运情况",
+    "text": "截至2022年末，全国累计投运各类电化学储能电站（包括大、中、小型电站）472座，总能量14.05GWh。其中大型电站26座，总能量5.99GWh；中型电站275座，总能量7.23GWh。2022年新增投运电化学储能电站194座，总能量达7.86GWh。其中大型电站19座，总能量4.64GWh；中型电站114座，总能量2.92GWh。\n2022年末累计投运的各类电化学储能电站中，锂离子电池电站435座，总能量占比达到89.2%（磷酸铁锂电池占88.7%，三元锂电池和钛酸锂电池分别占0.3%和0.2%），铅酸/铅碳电池总能量占比4.0%，液流电池总能量占比3.7%。在新增投运的电化学储能电站中，锂离子电池总能量占比达到86.5%，全部为磷酸铁锂电池。此外，铅酸/铅碳电池总能量占2.7%，液流电池总能量占5.6%。（注：1MWh=0.001GWh）",
+    "tables": [
+     {
+      "caption": "2017—2022年全国电化学储能电站年末总能量（单位：MWh）",
+      "headers": [
+       "年份",
+       "2017",
+       "2018",
+       "2019",
+       "2020",
+       "2021",
+       "2022"
+      ],
+      "rows": [
+       [
+        "年末总能量",
+        "311",
+        "858",
+        "1415",
+        "3349",
+        "6197",
+        "14054"
+       ]
+      ]
+     }
+    ],
+    "questions": [
+     {
+      "stem": "截至2021年末全国累计投运的各类电化学储能电站总数中，小型电站数量占比约为：",
+      "options": [
+       "35%",
+       "45%",
+       "30%",
+       "40%"
+      ],
+      "answer": 3,
+      "tag": "基期比重",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "2021年末总数＝472－194＝278座；大型＝26－19＝7座，中型＝275－114＝161座，小型＝278－7－161＝110座。占比＝110÷278≈39.6%，选D。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "A与非A思想：小型＝总数－大型－中型，全部用\"2022年末－2022新增\"得到2021年末值。110÷278截位为11÷28，首位商3接近4（28×4＝112略大于110），故约40%，选D。"
+       }
+      ],
+      "id": 1011
+     },
+     {
+      "stem": "2022年新增投运的电化学储能电站中，平均每个大型电站的能量约是中型电站的多少倍？",
+      "options": [
+       "4",
+       "6",
+       "8",
+       "10"
+      ],
+      "answer": 3,
+      "tag": "平均数倍数",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "大型平均＝4.64÷19≈0.244GWh/座；中型平均＝2.92÷114≈0.0256GWh/座。倍数＝0.244÷0.0256≈9.5，最接近10，选D。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "列式变形：(4.64÷19)÷(2.92÷114)＝(4.64÷2.92)×(114÷19)。114÷19恰好＝6，4.64÷2.92≈1.6，6×1.6＝9.6，接近10，选D。先约分再乘，避免两次除法。"
+       }
+      ],
+      "id": 1012
+     },
+     {
+      "stem": "2018～2022年，全国电化学储能电站年末总能量同比增长100%以上的年份有几个？",
+      "options": [
+       "1",
+       "2",
+       "3",
+       "4"
+      ],
+      "answer": 2,
+      "tag": "增长率比较",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "增长100%以上即现期＞2×基期。2018：858＞2×311＝622✓；2019：1415＜2×858＝1716✗；2020：3349＞2×1415＝2830✓；2021：6197＜2×3349＝6698✗；2022：14054＞2×6197＝12394✓。共3个，选C。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "\"增长100%以上\"反向转化为\"现期＞基期×2\"，用乘法代替除法：逐年把上年数值翻倍后与当年比较，口算即可。注意时间端点2018年也要算（材料给了2017年数据就是为此）。"
+       }
+      ],
+      "id": 1013
+     },
+     {
+      "stem": "在①磷酸铁锂电池、②三元锂电池、③铅酸/铅碳电池和④液流电池四类应用不同技术的电化学储能电站中，2022年末累计投运电站总能量占各类电化学储能电站总能量比重高于2021年末水平的是：",
+      "options": [
+       "①和②",
+       "③和④",
+       "仅①",
+       "仅④"
+      ],
+      "answer": 3,
+      "tag": "混合比重",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "2022年末＝2021年末＋2022新增，是混合关系：年末比重介于\"2021年末比重\"与\"新增比重\"之间。①磷酸铁锂：新增86.5%＜年末88.7%，故2021年末＞88.7%，年末比重下降；②三元锂：新增中无三元锂（新增锂电全部为磷酸铁锂），新增占比0＜年末0.3%，下降；③铅酸/铅碳：新增2.7%＜年末4.0%，下降；④液流：新增5.6%＞年末3.7%，故2021年末＜3.7%，年末比重上升。仅④，选D。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "混合比重口诀：整体（年末）比重居中，偏向基期量大的一方。新增占比＜年末占比→年末比重被\"拉低\"→较上年下降；新增占比＞年末占比→上升。只需比较每类\"新增占比vs年末占比\"：86.5＜88.7、0＜0.3、2.7＜4.0、5.6＞3.7，只有液流上升，选D。全程无需计算。"
+       }
+      ],
+      "id": 1014
+     },
+     {
+      "stem": "关于全国各类电化学储能电站状况，能够从上述资料中推出的是：",
+      "options": [
+       "截至2022年末，累计投运的小型电站总能量超过1GWh",
+       "2022年末，平均每个累计投运的大型电站能量同比上升",
+       "2022年末，平均每个累计投运的锂离子电池电站能量高于总体平均水平",
+       "2022年新增电站中，锂离子、铅酸/铅碳和液流电池以外的类型能量占总能量的比重不到5%"
+      ],
+      "answer": 1,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "A：小型能量＝14.05－5.99－7.23＝0.83GWh＜1，错误。B：2022年末大型平均＝5.99÷26≈0.230；2021年末＝(5.99－4.64)÷(26－19)＝1.35÷7≈0.193，上升，正确，选B。C：锂电平均＝14.05×89.2%÷435≈0.0288，总体平均＝14.05÷472≈0.0298，低于总体，错误。D：其他类型占比＝100%－86.5%－2.7%－5.6%＝5.2%＞5%，错误。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "B项两期平均数比较：分子5.99→1.35约4.4倍，分母26→7约3.7倍，分子倍数大→平均数上升，无需精算。C项赋值法：设总能量100份，锂电89.2份÷435座 vs 100份÷472座，分母凑同（435＋37＝472），分子89.2＋约74＜100×…直接比89.2/435与100/472，前者小。D项一步减法：5.2%＞5%。"
+       }
+      ],
+      "id": 1015
+     }
+    ]
+   },
+   {
+    "id": "zt24-4",
+    "title": "机器人产量与设备进出口",
+    "text": "2023年3月，全国规模以上工业企业的工业机器人完成产量4.4万套，服务机器人完成产量70万套。2023年1～3月全国规模以上工业企业的工业机器人累计完成产量10.4万套，服务机器人累计完成产量145万套。\n2023年3月，我国机器人设备出口金额0.7亿美元，较上年增长110.3%，进口金额2.4亿美元，较上年增长68.5%。2023年1～3月我国机器人设备累计出口金额1.9亿美元，较上年增长62.1%，累计进口金额6.9亿美元，较上年增长55.1%。\n2022年12月，全国规模以上工业企业的工业机器人完成产量4万套，服务机器人完成产量49.1万套。2022年1～12月全国规模以上工业企业的工业机器人累计完成产量44.3万套，服务机器人累计完成产量645.8万套。\n2022年12月，我国工业机器人设备出口金额0.5亿美元，进口金额1.8亿美元。2022年1～12月我国工业机器人设备累计出口金额6.1亿美元，累计进口金额20亿美元。",
+    "tables": [],
+    "questions": [
+     {
+      "stem": "2023年1～2月，全国规模以上工业企业的服务机器人完成产量约是工业机器人完成产量的多少倍？",
+      "options": [
+       "12.5",
+       "14.0",
+       "15.9",
+       "18.1"
+      ],
+      "answer": 0,
+      "tag": "倍数",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "1～2月＝1～3月－3月。服务机器人：145－70＝75万套；工业机器人：10.4－4.4＝6万套。75÷6＝12.5倍，选A。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "看到\"1～2月\"而材料给\"3月\"和\"1～3月\"，立即反应做减法。75÷6口算：6×12＝72，余3恰为6的一半，得12.5。"
+       }
+      ],
+      "id": 1016
+     },
+     {
+      "stem": "2023年一季度，我国机器人设备进出口贸易逆差比上年同期：",
+      "options": [
+       "下降了不到30%",
+       "下降了30%以上",
+       "上升了不到30%",
+       "上升了30%以上"
+      ],
+      "answer": 3,
+      "tag": "混合增长率",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "逆差＝进口－出口。2023年一季度逆差＝6.9－1.9＝5.0亿美元；2022年同期＝6.9÷1.551－1.9÷1.621≈4.45－1.17＝3.28亿美元。增速＝(5.0－3.28)÷3.28≈52.6%＞30%，上升了30%以上，选D。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "混合增长率：进口＝出口＋逆差，进口增速55.1%是整体，介于出口62.1%与逆差增速r之间→r＜55.1%；逆差基期（约3.3）＞出口基期（约1.2），整体偏向逆差→55.1%－r＜62.1%－55.1%＝7%，得r＞48.1%。故上升且远超30%，选D，无需精算。"
+       }
+      ],
+      "id": 1017
+     },
+     {
+      "stem": "2022年12月，全国规模以上工业企业的①工业机器人完成产量和②服务机器人完成产量：",
+      "options": [
+       "均高于1～11月的月均水平",
+       "均低于1～11月的月均水平",
+       "仅①高于1～11月的月均水平",
+       "仅②高于1～11月的月均水平"
+      ],
+      "answer": 2,
+      "tag": "平均数比较",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "结论：12月＞1～11月月均 ⇔ 12月×12＞全年。工业：4×12＝48＞44.3，高于；服务：49.1×12＝589.2＜645.8，低于。仅①高于，选C。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "合成平均数思想：全年月均介于\"12月\"与\"1～11月月均\"之间，12月只要高于全年月均就高于1～11月月均。比较时用\"12月×12 vs 全年\"，乘法代除法：48＞44.3、589＜646，一步定C。"
+       }
+      ],
+      "id": 1018
+     },
+     {
+      "stem": "已知2022年1～11月我国高新技术产品累计进出口总额约为14544亿美元，则同期我国工业机器人设备累计进出口总额约占高新技术产品累计进出口总额的：",
+      "options": [
+       "0.2%",
+       "0.5%",
+       "1.0%",
+       "1.6%"
+      ],
+      "answer": 0,
+      "tag": "比重",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "2022年1～11月工业机器人进出口＝(6.1＋20)－(0.5＋1.8)＝26.1－2.3＝23.8亿美元。比重＝23.8÷14544≈0.164%，最接近0.2%，选A。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "量级陷阱题：选项0.2%与1.6%相差约10倍。先定量级：14544的1%是145.4，23.8远小于145.4，故结果必为0点几个百分点，排除C、D；23.8÷145≈0.16，选A。截位前先看量级！"
+       }
+      ],
+      "id": 1019
+     },
+     {
+      "stem": "能够从上述资料中推出的是：",
+      "options": [
+       "2022年3月，我国机器人设备出口金额不到3000万美元",
+       "2023年3月，我国机器人设备进口金额同比增速快于1～2月同比增速",
+       "2023年一季度，全国规模以上工业企业的服务机器人完成产量高于上年各季度均值",
+       "2022年1～11月，全国规模以上工业企业的工业和服务机器人完成产量之和超过650万套"
+      ],
+      "answer": 1,
+      "tag": "综合分析",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "A：2022年3月出口＝0.7÷(1＋110.3%)＝0.7÷2.103≈0.333亿美元＝3330万美元＞3000万，错误。B：进口3月增速68.5%＞1～3月增速55.1%，由混合增长率，1～2月增速必低于55.1%＜68.5%，故3月快于1～2月，正确，选B。C：上年季均＝645.8÷4≈161.5万套＞145，错误。D：(44.3＋645.8)－(4＋49.1)＝690.1－53.1＝637万套＜650，错误。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "B项用混合思想秒杀：3月＋1～2月＝1～3月，整体增速55.1%居中，3月68.5%在右侧，则1～2月必在55.1%左侧，3月更快，无需计算。A项注意\"增长110.3%\"是除以2.103不是1.103；D项两组数各自做减法再比较。"
+       }
+      ],
+      "id": 1020
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "2023年国考·纺织品服装出口专项",
+  "cat": "zhenti",
+  "target": 420,
+  "cutoff": 480,
+  "source": "2023年国家公务员考试《行测》行政执法卷第一篇（考生回忆版，华图发布），全部答案程序核验。",
+  "materials": [
+   {
+    "id": "zt23-1",
+    "title": "纺织品服装出口情况",
+    "text": "2021年，全国纺织品服装出口3155亿美元，同比增长8.4%。其中，纺织品出口1452.2亿美元，同比下降5.6%，较2019年增长22.0%；服装出口1702.8亿美元，同比增长24.0%，较2019年增长16.0%。其中，针织服装及衣着附件出口864.8亿美元，同比增长39.0%；梭织服装及衣着附件出口701.2亿美元，同比增长12.6%。\n2021年，中国对美国、东盟、欧盟和日本的纺织品服装出口合计1724.9亿美元。其中，对美国出口额为563.5亿美元，同比增长4.0%；向东盟十国出口纺织品服装491.2亿美元，同比增长24.9%；对欧盟27国出口纺织品服装469.9亿美元，同比下降11.1%；对日本出口纺织品服装200.3亿美元，同比下降7.2%。\n2021年，中国向全球出口纺织纱线138亿美元，出口织物667亿美元，分别同比增长41.5%和34.3%。纺织制品当中，防疫类口罩出口额为129.5亿美元，出口金额、数量同比分别下降76.0%和13.0%。除防疫类口罩外，其他纺织制品出口额为517.2亿美元，同比增长27.5%。\n2021年，中国向“一带一路”沿线国家出口纺织品服装1137.9亿美元，同比增长24.5%，较2019年增长17.3%；同时，中国自“一带一路”沿线国家进口纺织品服装131.6亿美元，同比增长24.5%。",
+    "tables": [],
+    "questions": [
+     {
+      "stem": "2020年，全国服装出口额比2019年：",
+      "options": [
+       "增长了不到10%",
+       "增长了10%以上",
+       "下降了不到10%",
+       "下降了10%以上"
+      ],
+      "answer": 2,
+      "tag": "间隔增长率",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "2020年服装出口＝1702.8÷(1＋24.0%)≈1373.2亿美元；2019年＝1702.8÷(1＋16.0%)≈1467.9亿美元（\"较2019年增长16%\"即2021年是2019年的1.16倍）。1373.2÷1467.9－1≈－6.5%，下降了不到10%，选C。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "间隔增长率思路：2021年比2019年增长16%，2021年比2020年增长24%。设2020年比2019年增速为r，则(1＋r)×1.24＝1.16，1＋r＝1.16÷1.24＜1，r为负；1.16÷1.24≈0.935，r≈－6.5%，下降不到10%，选C。"
+       }
+      ],
+      "id": 1021
+     },
+     {
+      "stem": "2021年，全国针织、梭织服装及衣着附件总出口额约占纺织品服装出口总额的：",
+      "options": [
+       "40%",
+       "45%",
+       "50%",
+       "55%"
+      ],
+      "answer": 2,
+      "tag": "比重",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "(864.8＋701.2)÷3155＝1566÷3155≈49.6%，最接近50%，选C。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "截位：1566÷3155≈157÷316，316的一半是158，157略小于一半，故约49.6%，选50%。\"约\"字题找最接近选项即可。"
+       }
+      ],
+      "id": 1022
+     },
+     {
+      "stem": "将①美国、②东盟十国、③欧盟27国和④日本按2021年自中国进口纺织品服装金额同比增量从高到低排列，以下正确的是：",
+      "options": [
+       "②①③④",
+       "②①④③",
+       "①②③④",
+       "①②④③"
+      ],
+      "answer": 1,
+      "tag": "增长量比较",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "增量＝现期×r÷(1＋r)。美国：563.5×4%÷1.04≈21.7；东盟：491.2×24.9%÷1.249≈97.9；欧盟：469.9×(－11.1%)÷0.889≈－58.6；日本：200.3×(－7.2%)÷0.928≈－15.5。排序②①④③，选B。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "先分正负：欧盟、日本负增长，增量必为负，排最后两位；负增长中欧盟基数大、降幅大，减少更多，排最末→④在③前，排除A、C。正增长中东盟增速24.9%远高于美国4%且基数相近，东盟第一→②①，选B。"
+       }
+      ],
+      "id": 1023
+     },
+     {
+      "stem": "2020年中国出口的纺织制品总额中，防疫类口罩出口额占比约为：",
+      "options": [
+       "33%",
+       "45%",
+       "57%",
+       "72%"
+      ],
+      "answer": 2,
+      "tag": "基期比重",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "2020年口罩出口＝129.5÷(1－76.0%)＝129.5÷0.24≈539.6亿美元；2020年其他纺织制品＝517.2÷1.275≈405.6亿美元。口罩占比＝539.6÷(539.6＋405.6)＝539.6÷945.2≈57.1%，选C。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "口罩下降76%≈下降3/4，基期≈现期×4＝129.5×4≈518（略大，因76%＜75%对应除0.24＞×4）；其他制品增长27.5%≈1/4强，基期≈517÷1.275≈406。518÷(518＋406)≈56%，接近57%，选C。注意\"纺织制品总额\"＝口罩＋其他纺织制品，不含纱线、织物。"
+       }
+      ],
+      "id": 1024
+     },
+     {
+      "stem": "2020年，中国对“一带一路”沿线国家纺织品服装贸易顺差额约为多少亿美元？",
+      "options": [
+       "1253",
+       "1129",
+       "1006",
+       "808"
+      ],
+      "answer": 3,
+      "tag": "基期差值",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "顺差＝出口－进口。2020年出口＝1137.9÷1.245≈914.0；进口＝131.6÷1.245≈105.7。顺差＝914.0－105.7≈808.3亿美元，选D。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "出口与进口增速相同（均24.5%），可合并：顺差2020＝(1137.9－131.6)÷1.245＝1006.3÷1.245。1006÷1.25＝805，略大于805，选808。先做差再除，一次除法搞定；1006是\"现期顺差\"干扰项。"
+       }
+      ],
+      "id": 1025
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "2025年国考·集成电路布图设计专项",
+  "cat": "zhenti",
+  "target": 420,
+  "cutoff": 480,
+  "source": "2025年国家公务员考试《行测》行政执法卷第一篇（考生回忆版，华图等发布），答案程序核验。",
+  "materials": [
+   {
+    "id": "zt25-1",
+    "title": "集成电路布图设计登记申请和发证",
+    "text": "截至2023年末，我国集成电路布图设计登记累计申请93147件，发证72378件。2024年1—4月，我国集成电路布图设计登记申请3503件，发证4189件。",
+    "tables": [
+     {
+      "caption": "2015—2023年我国集成电路布图设计登记申请和发证情况（单位：件）",
+      "headers": [
+       "年份",
+       "发证量",
+       "申请量"
+      ],
+      "rows": [
+       [
+        "2015",
+        "1800",
+        "2058"
+       ],
+       [
+        "2016",
+        "2154",
+        "2360"
+       ],
+       [
+        "2017",
+        "2670",
+        "3228"
+       ],
+       [
+        "2018",
+        "3815",
+        "4431"
+       ],
+       [
+        "2019",
+        "6614",
+        "8319"
+       ],
+       [
+        "2020",
+        "11727",
+        "14375"
+       ],
+       [
+        "2021",
+        "13087",
+        "20353"
+       ],
+       [
+        "2022",
+        "9106",
+        "14403"
+       ],
+       [
+        "2023",
+        "11316",
+        "12503"
+       ]
+      ]
+     }
+    ],
+    "questions": [
+     {
+      "stem": "截至2014年末，我国集成电路布图设计登记累计申请量在以下哪个范围内？",
+      "options": [
+       "超过2.2万件",
+       "1.5万～2.2万件之间",
+       "0.8万～1.5万件之间",
+       "不到0.8万件"
+      ],
+      "answer": 2,
+      "tag": "简单计算",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "2014年末累计＝2023年末累计－(2015～2023年申请量之和)＝93147－82030＝11117件，在0.8万～1.5万之间，选C。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "高位叠加：申请量各年取千位以上≈2+2+3+4+8+14+20+14+12＝79（千），实际和略大于7.9万；9.3万－7.9万≈1.4万且略小，落在0.8万～1.5万。选项差距大，截到千位即可，不必精算。"
+       }
+      ],
+      "id": 1026
+     },
+     {
+      "stem": "如2024年5—12月，我国集成电路布图设计登记月均发证量与1—4月水平相同，则2024年全年，我国集成电路布图设计登记发证量将比上年：",
+      "options": [
+       "上升不到20%",
+       "上升20%以上",
+       "下降不到20%",
+       "下降20%以上"
+      ],
+      "answer": 0,
+      "tag": "增长率",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "5—12月月均与1—4月相同，则全年＝1—4月×3＝4189×3＝12567件。增速＝12567÷11316－1≈11.1%，上升不到20%，选A。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "全年＝4189×3≈12600。验证20%阈值：11316×20%≈2260，而增量仅12600－11316≈1280＜2260，故上升但不到20%。用\"基期×阈值\"反乘验证，避免除法。"
+       }
+      ],
+      "id": 1027
+     },
+     {
+      "stem": "2019—2021年，我国集成电路布图设计登记申请量三年的同比增速：",
+      "options": [
+       "逐年上升",
+       "逐年下降",
+       "先升后降",
+       "先降后升"
+      ],
+      "answer": 1,
+      "tag": "增长率比较",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "2019年：8319÷4431－1≈87.7%；2020年：14375÷8319－1≈72.8%；2021年：20353÷14375－1≈41.6%。逐年下降，选B。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "看倍数：2019年接近上年2倍（4431×2＝8862＞8319，略小于2倍）；2020年增量约6000、基期8319，明显不到1.5倍；2021年增量约6000、基期14375，不到1.5倍且更小。倍数递减即增速递减，无需算百分数。"
+       }
+      ],
+      "id": 1028
+     },
+     {
+      "stem": "2015—2023年，我国集成电路布图设计登记当年发证量与当年申请量比值大于0.9的年份有几个？",
+      "options": [
+       "2",
+       "3",
+       "4",
+       "5"
+      ],
+      "answer": 0,
+      "tag": "比值比较",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "逐年验证发证÷申请＞0.9：2016年2154÷2360≈0.913✓；2023年11316÷12503≈0.905✓；其余年份均低于0.9（如2015年0.875、2018年0.861、2020年0.816）。共2个，选A。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "变除为乘：发证＞申请×0.9 ⇔ 申请－发证＜申请×10%。用\"申请量错位相减\"：2016年2360－236＝2124＜2154✓；2023年12503－1250＝11253＜11316✓；其余年份差值均大于申请的10%。减法比除法快得多。"
+       }
+      ],
+      "id": 1029
+     },
+     {
+      "stem": "以下柱状图反映了哪一时间段内，我国集成电路布图设计登记发证量同比增量的变化趋势（横轴位置表示增量为0）？",
+      "options": [
+       "2016—2019年",
+       "2017—2020年",
+       "2018—2021年",
+       "2019—2022年"
+      ],
+      "answer": 2,
+      "tag": "增长量比较",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "发证增量：2018年＋1145、2019年＋2799、2020年＋5113、2021年＋1360，全部为正，第3年最高、第1年最低、第2年第2高、第4年第3，符合图形，选C。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "抓特征排除：图形全部在横轴上方（增量全正）→2022年增量为负（9106＜13087），含2022的D排除；图形第3年最高→A、B的第4年（2019/2020）才是最高，排除。锁定C。"
+       }
+      ],
+      "note": "原题为柱状图，此处用文字等价描述：连续4年增量均为正值，第3年最高，第1年最低，第2年第2高，第4年第3。",
+      "id": 1030
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "2025年国考·法律服务数据专项",
+  "cat": "zhenti",
+  "target": 420,
+  "cutoff": 480,
+  "source": "2025年国家公务员考试《行测》行政执法卷第二篇（考生回忆版，华图等发布），答案程序核验。",
+  "materials": [
+   {
+    "id": "zt25-2",
+    "title": "Z省律师、基层法律服务工作数据",
+    "text": "2020—2023年Z省律师、基层法律服务工作数据如下表。",
+    "tables": [
+     {
+      "caption": "2020—2023年Z省律师、基层法律服务工作数据",
+      "headers": [
+       "指标",
+       "2020年",
+       "2021年",
+       "2022年",
+       "2023年"
+      ],
+      "rows": [
+       [
+        "律师事务所总数(家)",
+        "1636",
+        "1705",
+        "1755",
+        "1826"
+       ],
+       [
+        "律师人数(人)",
+        "27302",
+        "30889",
+        "36938",
+        "41924"
+       ],
+       [
+        "法律顾问数(不含村、社区)(家)",
+        "72739",
+        "89450",
+        "102251",
+        "111811"
+       ],
+       [
+        "村(社区)法律顾问数(家)",
+        "26153",
+        "24951",
+        "24705",
+        "23652"
+       ],
+       [
+        "律师办理法律业务数(万件)",
+        "68.36",
+        "76.43",
+        "81.24",
+        "93.55"
+       ],
+       [
+        "基层法律服务所总数(家)",
+        "439",
+        "430",
+        "423",
+        "417"
+       ],
+       [
+        "基层法律服务工作者人数(人)",
+        "2658",
+        "2476",
+        "2395",
+        "2340"
+       ],
+       [
+        "基层法律服务工作者办理法律业务数(万件)",
+        "6.65",
+        "6.99",
+        "6.88",
+        "6.4"
+       ]
+      ]
+     }
+    ],
+    "questions": [
+     {
+      "stem": "2020—2023年，Z省律师办理法律业务数之和约是同期基层法律服务工作者办理法律业务数之和的多少倍？",
+      "options": [
+       "12",
+       "15",
+       "18",
+       "21"
+      ],
+      "answer": 0,
+      "tag": "倍数",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "律师业务和＝68.36＋76.43＋81.24＋93.55＝319.58万件；基层业务和＝6.65＋6.99＋6.88＋6.40＝26.92万件。319.58÷26.92≈11.9倍，最接近12，选A。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "先截位后加减：分子≈68＋76＋81＋94＝319，分母≈7＋7＋7＋6＝27，319÷27首位商1、第二位接近2，约11.9。也可用混合倍数：各年倍数约10.3、10.9、11.8、14.6，混合后必在10～15之间且偏小，排除15/18/21。"
+       }
+      ],
+      "id": 1031
+     },
+     {
+      "stem": "2021—2023年，Z省各年律师人数与律师事务所总数的比值：",
+      "options": [
+       "先升后降",
+       "先降后升",
+       "持续下降",
+       "持续上升"
+      ],
+      "answer": 3,
+      "tag": "比值比较",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "2021年：30889÷1705≈18.1；2022年：36938÷1755≈21.0；2023年：41924÷1826≈23.0。持续上升，选D。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "转化为两期比较：比值上升⇔分子增速＞分母增速。2022年律师人数增约20%、事务所增约3%；2023年人数增约13.5%、事务所增约4%。两年都是分子快，持续上升。也可用差分法：(41924－36938)/(1826－1755)＝4986/71≈70＞21，大分数更大。"
+       }
+      ],
+      "id": 1032
+     },
+     {
+      "stem": "2023年，Z省含村、社区在内的法律顾问数约是2020年的多少倍？",
+      "options": [
+       "1.2",
+       "1.4",
+       "1.6",
+       "1.8"
+      ],
+      "answer": 1,
+      "tag": "倍数",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "含村社区＝不含村社区＋村社区。2023年：111811＋23652＝135463家；2020年：72739＋26153＝98892家。135463÷98892≈1.37倍，最接近1.4，选B。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "先截位后加减：2023年≈112＋24＝136（千），2020年≈73＋26＝99（千）≈100。136÷99略大于1.36，选1.4。注意审题陷阱：表格给的是\"不含村、社区\"，必须把村社区那行加上。"
+       }
+      ],
+      "id": 1033
+     },
+     {
+      "stem": "如保持2023年同比增量不变，则到哪一年Z省律师办理法律业务数将首次超过150万件？",
+      "options": [
+       "2026年",
+       "2027年",
+       "2028年",
+       "2029年"
+      ],
+      "answer": 2,
+      "tag": "现期量预测",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "2023年增量＝93.55－81.24＝12.31万件。设n年后首次超过150：93.55＋12.31n＞150，n＞56.45÷12.31≈4.59，取n＝5，即2028年，选C。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "估算：增量约12.3，差150－93.55≈56.5。12×4＝48＜56.5，12×5＝60＞56.5，需5年。注意\"保持增量不变\"是等差数列（每年加固定量），不是等比；n要向上取整。"
+       }
+      ],
+      "id": 1034
+     },
+     {
+      "stem": "以下柱状图反映了2021、2022和2023年Z省律师、基层法律服务工作哪一指标的同比增量变化趋势（横轴位置表示增量为0）？",
+      "options": [
+       "律师事务所总数",
+       "律师人数",
+       "法律顾问数(不含村、社区)",
+       "村(社区)法律顾问数"
+      ],
+      "answer": 2,
+      "tag": "增长量比较",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "图形要求三年增量全正且逐年递减。事务所：69、50、71（先降后升✗）；律师人数：3587、6049、4986（先升后降✗）；法律顾问不含村社区：16711、12801、9560（全正递减✓）；村社区：－1202、－246、－1053（全负✗）。选C。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "先看正负：图形全在横轴上方→村社区顾问数逐年减少（负增量），D排除。再看趋势：只需验证\"逐年递减\"，法律顾问不含村社区的增量1.67万→1.28万→0.96万一眼递减，选C。事务所增量70→50→71有回升，排除。"
+       }
+      ],
+      "note": "原题为柱状图，此处用文字等价描述：2021、2022、2023三年增量均为正值且逐年递减。",
+      "id": 1035
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "2026年国考·科幻产业专项",
+  "cat": "zhenti",
+  "target": 420,
+  "cutoff": 480,
+  "source": "2026年国家公务员考试《行测》行政执法卷第三篇（考生回忆版），分领域数据已与总营收逐年加总核对一致，答案程序核验。",
+  "materials": [
+   {
+    "id": "zt26-1",
+    "title": "科幻产业营收情况",
+    "text": "科幻产业包括科幻阅读、科幻影视、科幻游戏、科幻衍生品、科幻文旅五大领域。2024年，我国科幻产业总营收1089.6亿元。",
+    "tables": [
+     {
+      "caption": "图1 2016—2024年我国科幻产业营收情况（单位：亿元）",
+      "headers": [
+       "年份",
+       "2016",
+       "2017",
+       "2018",
+       "2019",
+       "2020",
+       "2021",
+       "2022",
+       "2023",
+       "2024"
+      ],
+      "rows": [
+       [
+        "总营收",
+        "100.0",
+        "140.0",
+        "456.4",
+        "658.7",
+        "551.1",
+        "829.6",
+        "877.5",
+        "1132.9",
+        "1089.6"
+       ]
+      ]
+     },
+     {
+      "caption": "图2 2022—2024年我国科幻产业分领域营收情况（单位：亿元）",
+      "headers": [
+       "领域",
+       "2022年",
+       "2023年",
+       "2024年"
+      ],
+      "rows": [
+       [
+        "科幻阅读",
+        "30.4",
+        "31.7",
+        "35.1"
+       ],
+       [
+        "科幻影视",
+        "83.5",
+        "115.9",
+        "67.1"
+       ],
+       [
+        "科幻游戏",
+        "565.0",
+        "651.9",
+        "718.1"
+       ],
+       [
+        "科幻衍生品",
+        "48.3",
+        "22.8",
+        "25.3"
+       ],
+       [
+        "科幻文旅",
+        "150.3",
+        "310.6",
+        "244.0"
+       ]
+      ]
+     }
+    ],
+    "questions": [
+     {
+      "stem": "2021—2024年，我国科幻产业累计营收额约是2017—2020年的多少倍？",
+      "options": [
+       "2.5",
+       "2.2",
+       "1.9",
+       "1.6"
+      ],
+      "answer": 1,
+      "tag": "倍数",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "2021—2024年合计＝829.6＋877.5＋1132.9＋1089.6＝3929.6亿元；2017—2020年合计＝140.0＋456.4＋658.7＋551.1＝1806.2亿元。3929.6÷1806.2≈2.18倍，最接近2.2，选B。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "高位叠加：分子≈830＋878＋1133＋1090＝3931，分母≈140＋456＋659＋551＝1806。1806×2＝3612，3931－3612＝319，319÷1806≈0.18，得2.18。选项差距大，截到十位即可。注意时间段别错位成2020—2023。"
+       }
+      ],
+      "id": 1036
+     },
+     {
+      "stem": "如保持2024年同比增量不变，则2026—2030年，我国科幻游戏产业累计营收将在以下哪个范围内？",
+      "options": [
+       "不到4500亿元",
+       "4500亿～4750亿元之间",
+       "超过5000亿元",
+       "4750亿～5000亿元之间"
+      ],
+      "answer": 3,
+      "tag": "现期量预测",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "2024年增量＝718.1－651.9＝66.2亿元。2026—2030年各年＝718.1＋2×66.2、＋3×66.2、…、＋6×66.2。累计＝5×718.1＋(2＋3＋4＋5＋6)×66.2＝3590.5＋1324＝4914.5亿元，在4750～5000之间，选D。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "等差数列求和：累计＝中间项(2028年)×5＝(718.1＋4×66.2)×5＝982.9×5＝4914.5。或估算：718×5＝3590，66×20＝1320，合计4910。坑点：2026—2030共5年，2026年是在2024基础上加2个增量（不是1个）。"
+       }
+      ],
+      "id": 1037
+     },
+     {
+      "stem": "我国科幻产业五大领域中，2024年营收额同比增速快于2023年水平的有几个？",
+      "options": [
+       "4",
+       "3",
+       "2",
+       "1"
+      ],
+      "answer": 2,
+      "tag": "增长率比较",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "阅读：2024年3.4÷31.7≈10.7%＞2023年1.3÷30.4≈4.3%✓；影视：2024年负增长＜2023年正增长✗；游戏：2024年66.2÷651.9≈10.2%＜2023年86.9÷565≈15.4%✗；衍生品：2024年正增长＞2023年负增长✓；文旅：2024年负增长✗。共2个，选C。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "正负秒杀：影视、文旅2024年营收下降（增速负），2023年上升（增速正），直接排除；衍生品2023年下降、2024年上升，直接入选。只剩阅读和游戏需比较：阅读增量3.4对1.3、基期相近，明显更快✓；游戏增量66对87、基期更大，更慢✗。共2个。"
+       }
+      ],
+      "id": 1038
+     },
+     {
+      "stem": "2022—2024年，科幻文旅营收额占科幻产业营收额的比重超过20%的年份仅包括：",
+      "options": [
+       "2023和2024年",
+       "2023年",
+       "2022和2024年",
+       "2022年"
+      ],
+      "answer": 0,
+      "tag": "比重",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "反向验证文旅＞总营收×20%：2022年150.3＜877.5×20%＝175.5✗；2023年310.6＞1132.9×20%＝226.6✓；2024年244.0＞1089.6×20%＝217.9✓。仅2023和2024，选A。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "占比阈值反推：比重＞20% ⇔ 部分＞整体÷5。整体÷5口算：877.5÷5≈175.5、1132.9÷5≈226.6、1089.6÷5≈217.9，与文旅150.3、310.6、244比较，一次除法都不用做。"
+       }
+      ],
+      "id": 1039
+     },
+     {
+      "stem": "以下柱状图反映了哪一时间段内，我国科幻产业营收额同比增量的变化情况（横轴位置表示增量为0，横轴上方为正增量、下方为负增量）？",
+      "options": [
+       "2021—2024年",
+       "2020—2023年",
+       "2019—2022年",
+       "2018—2021年"
+      ],
+      "answer": 3,
+      "tag": "增长量比较",
+      "methods": [
+       {
+        "name": "方法一 · 公式直算",
+        "text": "总营收增量：2018年＋316.4、2019年＋202.3、2020年－107.6、2021年＋278.5。仅第3年（2020年）为负，其余为正，符合图形，选D。"
+       },
+       {
+        "name": "方法二 · 速算技巧",
+        "text": "抓唯一负增量：2016—2024中只有2020年营收下降（551.1＜658.7），2024年虽也下降但是末年。图形要求\"第3年为负\"→时间段第3年必须是2020→只有2018—2021符合，一步锁定D。"
+       }
+      ],
+      "note": "原题为柱状图，此处用文字等价描述：连续4年增量中仅第3年为负增量（横轴下方），其余3年均为正增量。",
+      "id": 1040
+     }
+    ]
+   }
+  ]
+ }
+]}</script>
+<script>
+/* SECTION: data */
+const RAW = JSON.parse(document.getElementById('bankData').textContent);
+const SETS = RAW.moni.concat(RAW.zhenti);
+SETS.forEach(s => { if (!s.cat) s.cat = 'moni'; if (!s.target) s.target = 26*60; if (!s.cutoff) s.cutoff = 30*60; s.total = s.materials.reduce((n,m)=>n+m.questions.length,0); });
+const $ = id => document.getElementById(id);
+function el(tag, cls, text){ const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; }
+function mmss(s){ s = Math.max(0, Math.floor(s)); return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
+
+/* SECTION: store */
+const KEY = 'ziliao_v1';
+let store = { records: {}, done: {} };
+try { const s = localStorage.getItem(KEY); if (s){ const p = JSON.parse(s); store.records = p.records || {}; store.done = p.done || {}; } } catch(e){}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e){} }
+
+/* SECTION: nav */
+let curView = 'home';
+const titles = { home:'资料分析限时训练', exam:'限时训练中', result:'训练成绩', review:'题目与解析', tech:'速算技巧卡' };
+function show(v){
+  curView = v;
+  document.querySelectorAll('.view').forEach(n => n.classList.remove('active'));
+  $('view-' + v).classList.add('active');
+  $('backBtn').classList.toggle('show', v !== 'home');
+  $('topTitle').textContent = titles[v] || '资料分析限时训练';
+  window.scrollTo(0, 0);
+  if (v === 'home') renderHome();
+}
+$('backBtn').addEventListener('click', () => {
+  if (curView === 'exam' && exam && !exam.submitted){
+    if (!confirm('退出将不保存本次训练成绩，确定退出？')) return;
+    stopTimer(); exam = null;
+  }
+  show('home');
+});
+
+/* SECTION: home */
+let homeFilter = 'all';
+function renderSetCard(s, i){
+  const card = el('div', 'setcard');
+  const h = el('h3', '', s.name);
+  h.appendChild(el('span', 'catbadge ' + (s.cat === 'zhenti' ? 'zt' : 'mn'), s.cat === 'zhenti' ? '真题' : '模拟'));
+  card.appendChild(h);
+  const themes = s.materials.map(m => m.title).join(' · ');
+  card.appendChild(el('div', 'meta', s.total + '题 · ' + s.materials.length + '篇材料 · 目标' + Math.round(s.target/60) + '分钟：' + themes));
+  if (s.source) card.appendChild(el('div', 'srcline', s.source));
+  const allq = s.materials.flatMap(m => m.questions);
+  const doneN = allq.filter(q => store.done[q.id]).length;
+  const r = store.records[i];
+  let recTxt = '已刷 ' + doneN + '/' + s.total + ' 题';
+  if (r) recTxt += ' · 训练 ' + r.attempts + ' 次 · 最佳 ' + r.best + '/' + s.total + ' · 上次 ' + r.lastScore + '/' + (r.lastTotal || s.total) + '（用时 ' + mmss(r.lastTime) + '）';
+  card.appendChild(el('div', 'rec', recTxt));
+  const row = el('div', 'btnrow');
+  const b1 = el('button', 'btn primary', '开始限时训练');
+  b1.addEventListener('click', () => startExam(i));
+  const b3 = el('button', 'btn ghost', '只练未做' + (doneN ? '（剩' + (s.total - doneN) + '题）' : ''));
+  b3.addEventListener('click', () => startExam(i, true));
+  const b2 = el('button', 'btn ghost', '浏览解析');
+  b2.addEventListener('click', () => openReview(i));
+  row.appendChild(b1); row.appendChild(b3); row.appendChild(b2);
+  card.appendChild(row);
+  return card;
+}
+function renderHome(){
+  let attempts = 0, best = null;
+  Object.values(store.records).forEach(r => { attempts += r.attempts || 0; if (r.best != null && (best == null || r.best > best)) best = r.best; });
+  $('stSets').textContent = SETS.length;
+  $('stAttempts').textContent = attempts;
+  $('stBest').textContent = best == null ? '--' : best + '题';
+  const zl = $('zhentiList'); zl.textContent = '';
+  const ml = $('moniList'); ml.textContent = '';
+  SETS.forEach((s, i) => { (s.cat === 'zhenti' ? zl : ml).appendChild(renderSetCard(s, i)); });
+  const ztN = SETS.filter(s=>s.cat==='zhenti').reduce((n,s)=>n+s.total,0);
+  const mnN = SETS.filter(s=>s.cat==='moni').reduce((n,s)=>n+s.total,0);
+  $('fwZtN').textContent = ztN + '题 · ' + SETS.filter(s=>s.cat==='zhenti').length + '个套卷/专项';
+  $('fwMnN').textContent = mnN + '题 · ' + SETS.filter(s=>s.cat==='moni').length + '套';
+  $('fwZt').classList.toggle('on', homeFilter === 'zhenti');
+  $('fwMn').classList.toggle('on', homeFilter === 'moni');
+  zl.style.display = homeFilter === 'moni' ? 'none' : '';
+  ml.style.display = homeFilter === 'zhenti' ? 'none' : '';
+}
+$('fwZt').addEventListener('click', () => { homeFilter = homeFilter === 'zhenti' ? 'all' : 'zhenti'; renderHome(); });
+$('fwMn').addEventListener('click', () => { homeFilter = homeFilter === 'moni' ? 'all' : 'moni'; renderHome(); });
+$('btnTech').addEventListener('click', () => { renderFrac(); show('tech'); });
+$('btnReset').addEventListener('click', () => { if (confirm('确定清空全部刷题记录、已刷标记和成绩吗？此操作不可恢复。')){ store = { records: {}, done: {} }; save(); renderHome(); } });
+function renderFrac(){
+  const t = $('fracTable'); if (t.childElementCount) return;
+  for (let row = 0; row < 4; row++){
+    const tr = el('tr');
+    for (let col = 0; col < 5; col++){
+      const n = 2 + row * 5 + col;
+      if (n > 20){ tr.appendChild(el('td')); continue; }
+      const td = el('td');
+      td.appendChild(el('b', '', '1/' + n));
+      td.appendChild(document.createTextNode(' ≈ ' + (100/n).toFixed(1) + '%'));
+      tr.appendChild(td);
+    }
+    t.appendChild(tr);
+  }
+}
+
+/* SECTION: exam */
+let exam = null, timerHandle = null;
+function elapsed(){ return exam ? (Date.now() - exam.start) / 1000 : 0; }
+function startExam(i, onlyNew){
+  const s = SETS[i];
+  let mats = s.materials, full = true;
+  if (onlyNew){
+    mats = s.materials.map(m => Object.assign({}, m, { questions: m.questions.filter(q => !store.done[q.id]) })).filter(m => m.questions.length);
+    full = false;
+    if (!mats.length){ alert('本套题目已全部刷过！可以点"浏览解析"复习，或继续练其他套卷。'); return; }
+  }
+  const total = mats.reduce((n,m)=>n+m.questions.length,0);
+  exam = { set: i, materials: mats, full: full, start: Date.now(), answers: {}, submitted: false, tab: 0,
+           target: Math.max(60, Math.round(s.target*total/s.total)), cutoff: Math.max(90, Math.round(s.cutoff*total/s.total)), total: total };
+  show('exam');
+  renderExamTabs(); renderSheet(); renderExamBody();
+  updateTimer();
+  timerHandle = setInterval(updateTimer, 1000);
+}
+function stopTimer(){ if (timerHandle){ clearInterval(timerHandle); timerHandle = null; } }
+function updateTimer(){
+  if (!exam || exam.submitted) return;
+  const e = elapsed(); const t = $('timer');
+  const cm = Math.round(exam.cutoff / 60);
+  if (e <= exam.target){ t.textContent = mmss(exam.target - e); t.className = 'timer'; $('timerLbl').textContent = '距目标用时'; }
+  else { t.textContent = '+' + mmss(e - exam.target); t.className = 'timer ' + (e > exam.cutoff ? 'cutoff' : 'over'); $('timerLbl').textContent = e > exam.cutoff ? '已超' + cm + '分钟' : '已超目标（' + cm + '分钟内仍计分）'; }
+  const over = e > exam.cutoff;
+  $('cutoffBanner').classList.toggle('show', over);
+  if (over) $('cutoffBanner').textContent = '已超过 ' + cm + ' 分钟：此后作答不计入成绩，但仍可继续练习';
+}
+function allQuestions(){ return exam.materials.flatMap(m => m.questions); }
+function renderExamTabs(){
+  const box = $('examTabs'); box.textContent = '';
+  exam.materials.forEach((m, i) => {
+    const b = el('button', 'tab' + (i === exam.tab ? ' on' : ''), '材料' + (i+1) + ' · ' + m.title);
+    b.addEventListener('click', () => { exam.tab = i; renderExamTabs(); renderExamBody(); window.scrollTo(0,0); });
+    box.appendChild(b);
+  });
+}
+function renderSheet(){
+  const box = $('sheet'); box.textContent = '';
+  let n = 0;
+  exam.materials.forEach((m, mi) => {
+    m.questions.forEach(q => {
+      n++;
+      const c = el('button', 'cell' + (exam.answers[q.id] ? ' done' : ''), String(n));
+      c.addEventListener('click', () => { exam.tab = mi; renderExamTabs(); renderExamBody(); setTimeout(() => { const t = $('q-' + q.id); if (t) t.scrollIntoView({behavior:'smooth', block:'start'}); }, 50); });
+      box.appendChild(c);
+    });
+  });
+  $('examProg').textContent = '已答 ' + Object.keys(exam.answers).length + '/' + exam.total;
+}
+function appendTables(host, m){
+  const tbs = m.tables || (m.table ? [m.table] : []);
+  tbs.forEach(tb => {
+    if (tb.caption) host.appendChild(el('div', 'tcap', tb.caption));
+    host.appendChild(buildTable(tb));
+  });
+}
+function buildTable(tb){
+  const wrap = el('div', 'tablewrap');
+  const t = el('table', 'data');
+  const thead = el('thead'); const hr = el('tr');
+  tb.headers.forEach(h => hr.appendChild(el('th', '', h)));
+  thead.appendChild(hr); t.appendChild(thead);
+  const tbody = el('tbody');
+  tb.rows.forEach(r => { const tr = el('tr'); r.forEach(c => tr.appendChild(el('td', '', c))); tbody.appendChild(tr); });
+  t.appendChild(tbody); wrap.appendChild(t);
+  return wrap;
+}
+function renderExamBody(){
+  const body = $('examBody'); body.textContent = '';
+  const m = exam.materials[exam.tab];
+  const mc = el('div', 'matcard');
+  mc.appendChild(el('h3', '', '材料' + (exam.tab+1) + ' · ' + m.title));
+  mc.appendChild(el('div', 'mattext', m.text));
+  appendTables(mc, m);
+  body.appendChild(mc);
+  m.questions.forEach((q, qi) => {
+    body.appendChild(buildQuestionCard(q, qi, true));
+  });
+}
+function buildQuestionCard(q, qi, interactive){
+  const card = el('div', 'qcard'); card.id = 'q-' + q.id;
+  const head = el('div', 'qhead');
+  head.appendChild(el('span', 'qno', '第' + (qi+1) + '题'));
+  head.appendChild(el('span', 'qtag', q.tag));
+  card.appendChild(head);
+  card.appendChild(el('div', 'qstem', q.stem));
+  if (q.note) card.appendChild(el('div', 'srcline', q.note));
+  const opts = el('div', 'opts');
+  q.options.forEach((o, oi) => {
+    const b = el('button', 'opt');
+    b.appendChild(el('span', 'k', 'ABCD'[oi]));
+    b.appendChild(el('span', 'v', o));
+    if (interactive){
+      if (exam.answers[q.id] && exam.answers[q.id].opt === oi) b.classList.add('sel');
+      b.addEventListener('click', () => {
+        if (exam.submitted) return;
+        exam.answers[q.id] = { opt: oi, t: elapsed() };
+        opts.querySelectorAll('.opt').forEach(x => x.classList.remove('sel'));
+        b.classList.add('sel');
+        renderSheet();
+      });
+    } else {
+      b.disabled = true;
+      if (oi === q.answer) b.classList.add('right');
+    }
+    opts.appendChild(b);
+  });
+  card.appendChild(opts);
+  return card;
+}
+$('submitBtn').addEventListener('click', () => {
+  const un = exam.total - Object.keys(exam.answers).length;
+  if (un > 0 && !confirm('还有 ' + un + ' 题未作答，确定交卷？')) return;
+  finishExam();
+});
+function finishExam(){
+  exam.submitted = true; exam.time = elapsed();
+  stopTimer();
+  const qs = allQuestions();
+  let score = 0, totalCorrect = 0, late = 0, un = 0;
+  const tagmap = {};
+  qs.forEach(q => {
+    const a = exam.answers[q.id];
+    if (!tagmap[q.tag]) tagmap[q.tag] = { ok: 0, n: 0 };
+    if (!a){ un++; return; }
+    const correct = a.opt === q.answer;
+    const counted = a.t <= exam.cutoff;
+    if (correct) totalCorrect++;
+    if (!counted) late++;
+    if (counted){ tagmap[q.tag].n++; if (correct){ score++; tagmap[q.tag].ok++; } }
+  });
+  qs.forEach(q => { if (exam.answers[q.id]) store.done[q.id] = true; });
+  const r = store.records[exam.set] || { attempts: 0, best: 0 };
+  r.attempts++; r.lastScore = score; r.lastTime = Math.round(exam.time); r.lastTotal = exam.total;
+  if (exam.full && score > r.best) r.best = score;
+  store.records[exam.set] = r; save();
+  renderResult(score, totalCorrect, late, un, tagmap);
+  show('result');
+}
+function renderResult(score, totalCorrect, late, un, tagmap){
+  $('resScore').textContent = score + ' / ' + exam.total;
+  $('resLbl').textContent = '计分成绩（' + Math.round(exam.cutoff/60) + '分钟内作答）';
+  const badge = $('resBadge'); badge.textContent = '';
+  const tm = Math.round(exam.target/60);
+  const done26 = exam.time <= exam.target && un === 0;
+  const b = el('span', 'badge26 ' + (done26 ? 'good' : 'bad'), done26 ? tm + '分钟内完成全部作答' : '未在' + tm + '分钟内完成');
+  badge.appendChild(b);
+  const grid = $('resGrid'); grid.textContent = '';
+  const items = [
+    ['总用时', mmss(exam.time)],
+    ['总答对（含超时）', totalCorrect + '/' + exam.total],
+    ['超时作答（不计分）', late + ' 题'],
+    ['未作答', un + ' 题'],
+  ];
+  items.forEach(it => { const d = el('div', 'it'); d.appendChild(el('b', '', it[1])); d.appendChild(document.createTextNode(it[0])); grid.appendChild(d); });
+  const ts = $('tagStats'); ts.textContent = '';
+  ts.appendChild(el('h3', '', '分题型正确率（仅计' + Math.round(exam.cutoff/60) + '分钟内作答）'));
+  Object.keys(tagmap).forEach(tag => {
+    const v = tagmap[tag];
+    const row = el('div', 'tagrow');
+    row.appendChild(el('span', 'nm', tag));
+    const bar = el('div', 'bar'); const i = el('i'); i.style.width = (v.n ? v.ok / v.n * 100 : 0) + '%'; bar.appendChild(i);
+    row.appendChild(bar);
+    row.appendChild(el('span', 'val', v.ok + '/' + v.n));
+    ts.appendChild(row);
+  });
+  const list = $('resList'); list.textContent = '';
+  let n = 0;
+  exam.materials.forEach((m, mi) => {
+    list.appendChild(el('h3', '', '材料' + (mi+1) + ' · ' + m.title));
+    const mc = el('div', 'matcard');
+    mc.appendChild(el('div', 'mattext', m.text));
+    appendTables(mc, m);
+    list.appendChild(mc);
+    m.questions.forEach(q => {
+      n++;
+      list.appendChild(buildReviewCard(q, n, exam.answers[q.id]));
+    });
+  });
+}
+function buildReviewCard(q, n, a){
+  const card = el('div', 'qcard');
+  const head = el('div', 'qhead');
+  head.appendChild(el('span', 'qno', '第' + n + '题'));
+  head.appendChild(el('span', 'qtag', q.tag));
+  let st;
+  if (!a) st = el('span', 'status skip', '未作答');
+  else if (a.t > exam.cutoff) st = el('span', 'status late', (a.opt === q.answer ? '答对' : '答错') + ' · 超时不计分');
+  else st = el('span', 'status ' + (a.opt === q.answer ? 'ok' : 'no'), a.opt === q.answer ? '答对' : '答错');
+  head.appendChild(st);
+  if (a) head.appendChild(el('span', 'timerlbl', '作答用时 ' + mmss(a.t)));
+  card.appendChild(head);
+  card.appendChild(el('div', 'qstem', q.stem));
+  const opts = el('div', 'opts');
+  q.options.forEach((o, oi) => {
+    const b = el('button', 'opt'); b.disabled = true;
+    b.appendChild(el('span', 'k', 'ABCD'[oi]));
+    b.appendChild(el('span', 'v', o));
+    if (oi === q.answer) b.classList.add('right');
+    if (a && a.opt === oi && oi !== q.answer) b.classList.add('wrongsel');
+    opts.appendChild(b);
+  });
+  card.appendChild(opts);
+  card.appendChild(el('div', 'yourans', '正确答案：' + 'ABCD'[q.answer] + '. ' + q.options[q.answer]));
+  const det = el('details', 'ana');
+  det.appendChild(el('summary', '', '查看解析（' + q.methods.length + '种方法）'));
+  q.methods.forEach(m => {
+    const md = el('div', 'method');
+    md.appendChild(el('b', '', m.name));
+    md.appendChild(el('div', 'txt', m.text));
+    det.appendChild(md);
+  });
+  card.appendChild(det);
+  return card;
+}
+$('resRetry').addEventListener('click', () => startExam(exam.set));
+$('resHome').addEventListener('click', () => show('home'));
+
+/* SECTION: review */
+let reviewSet = 0, reviewTab = 0;
+function openReview(i){ reviewSet = i; reviewTab = 0; renderReviewTabs(); renderReviewBody(); show('review'); }
+function renderReviewTabs(){
+  const box = $('reviewTabs'); box.textContent = '';
+  SETS[reviewSet].materials.forEach((m, i) => {
+    const b = el('button', 'tab' + (i === reviewTab ? ' on' : ''), '材料' + (i+1) + ' · ' + m.title);
+    b.addEventListener('click', () => { reviewTab = i; renderReviewTabs(); renderReviewBody(); window.scrollTo(0,0); });
+    box.appendChild(b);
+  });
+}
+function renderReviewBody(){
+  const body = $('reviewBody'); body.textContent = '';
+  const m = SETS[reviewSet].materials[reviewTab];
+  const mc = el('div', 'matcard');
+  mc.appendChild(el('h3', '', m.title));
+  mc.appendChild(el('div', 'mattext', m.text));
+  appendTables(mc, m);
+  body.appendChild(mc);
+  m.questions.forEach((q, qi) => {
+    const card = buildQuestionCard(q, qi, false);
+    card.appendChild(el('div', 'yourans', '正确答案：' + 'ABCD'[q.answer] + '. ' + q.options[q.answer]));
+    const det = el('details', 'ana'); det.open = true;
+    det.appendChild(el('summary', '', '解析（' + q.methods.length + '种方法）'));
+    q.methods.forEach(m => {
+      const md = el('div', 'method');
+      md.appendChild(el('b', '', m.name));
+      md.appendChild(el('div', 'txt', m.text));
+      det.appendChild(md);
+    });
+    card.appendChild(det);
+    body.appendChild(card);
+  });
+}
+
+/* SECTION: init */
+renderHome();
+</script>
+</body>
+</html>
